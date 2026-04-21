@@ -1,0 +1,127 @@
+{
+  "id": "voice-message",
+  "name": "Voice Message",
+  "figmaNodeId": "216:58897",
+  "figmaFileKey": "ILEhlPBUH6Y4lKwqSnPnSc",
+  "description": "A message bubble for voice/audio messages. Displays a play/pause control, a waveform visualization, duration, and optionally an AI-generated transcript that can be viewed, expanded, or hidden.",
+  "properties": {
+    "Service": { "type": "VARIANT", "default": "RCS", "options": ["xMS", "xMS alt", "RCS"] },
+    "Chat": { "type": "VARIANT", "default": "Outgoing", "options": ["Incoming", "Outgoing"] },
+    "Type": { "type": "VARIANT", "default": "w/o transcription", "options": ["w/o transcription", "w/transcription", "w/transcription expanded"] },
+    "Status": { "type": "VARIANT", "default": "Default", "options": ["Default", "Playing"] }
+  },
+  "tokens": {
+    "cornerRadius": "20dp (corner-large-increased)",
+    "width": "fit content / fill parent (ask for container width behavior)",
+    "mediaHeight": "n/a",
+    "padding": { "top": 8, "right": 16, "bottom": 8, "left": 8 },
+    "typography": {
+      "duration": { "token": "Label Large", "spec": "Google Sans Text Medium, 14/20, tracking 0" },
+      "button": { "token": "Label Large", "spec": "Google Sans Text Medium, 14/20, tracking 0 — for View/Hide transcript button" },
+      "title": { "token": "Title Medium", "spec": "Google Sans Text Medium, 16/24, tracking 0 — for transcript expanded title" },
+      "transcript": { "token": "Body Large", "spec": "Google Sans Text Regular, 16/24, tracking 0 — for transcript body text" }
+    }
+  },
+  "colors": {
+    "light": [
+      ["Bubble (RCS Outgoing)", "Primary", "#0B57D0"],
+      ["Bubble (xMS Incoming)", "Surface Container", "#F0F4F9"],
+      ["Bubble (xMS Outgoing)", "Surface Container High", "#E9EEF6"],
+      ["Bubble (xMS alt Incoming)", "Surface", "#FFFFFF"],
+      ["Play/Pause button bg (RCS)", "White", "#FFFFFF"],
+      ["Play/Pause icon (RCS)", "Primary", "#0B57D0"],
+      ["Play/Pause button bg (xMS)", "Primary", "#0B57D0"],
+      ["Play/Pause icon (xMS)", "White", "#FFFFFF"],
+      ["Waveform played", "Primary / White (RCS)", "#0B57D0 / #FFFFFF"],
+      ["Waveform unplayed", "On Surface Variant / White 40%", "#444746 / rgba(255,255,255,0.4)"],
+      ["Duration text (xMS)", "On Surface Variant", "#444746"],
+      ["Duration text (RCS)", "White", "#FFFFFF"],
+      ["Transcript button bg", "On Primary 10%", "rgba(255,255,255,0.1)"],
+      ["Transcript button text (xMS)", "On Surface", "#1F1F1F"],
+      ["Transcript button text (RCS)", "White", "#FFFFFF"],
+      ["Transcript body text", "On Surface", "#1F1F1F"],
+      ["Read receipt (RCS Outgoing)", "White", "#FFFFFF"]
+    ],
+    "dark": [
+      ["Bubble (RCS Outgoing)", "Primary", "#A8C7FA"],
+      ["Bubble (xMS Incoming)", "Surface Container", "#1E1F20"],
+      ["Bubble (xMS Outgoing)", "Surface Container High", "#282A2C"],
+      ["Bubble (xMS alt Incoming)", "Surface", "#131314"],
+      ["Play/Pause button bg (RCS)", "On Primary", "#062E6F"],
+      ["Play/Pause icon (RCS)", "Primary", "#A8C7FA"],
+      ["Play/Pause button bg (xMS)", "Primary", "#A8C7FA"],
+      ["Play/Pause icon (xMS)", "On Primary", "#062E6F"],
+      ["Waveform played", "Primary / On Primary", "#A8C7FA / #062E6F"],
+      ["Waveform unplayed", "On Surface Variant 60%", "rgba(196,199,197,0.6)"],
+      ["Duration text (xMS)", "On Surface Variant", "#C4C7C5"],
+      ["Duration text (RCS)", "On Primary", "#062E6F"],
+      ["Transcript button bg", "On Primary 10%", "rgba(6,46,111,0.1)"],
+      ["Transcript button text (xMS)", "On Surface", "#E3E3E3"],
+      ["Transcript button text (RCS)", "On Primary", "#062E6F"],
+      ["Transcript body text", "On Surface", "#E3E3E3"],
+      ["Read receipt (RCS Outgoing)", "On Primary", "#062E6F"]
+    ]
+  },
+  "variants": [
+    { "name": "w/o transcription — Default", "desc": "Compact pill-shaped bubble with just the play button, waveform, and duration. No transcript button." },
+    { "name": "w/o transcription — Playing", "desc": "Same compact layout but the play button becomes a pause button. Duration updates to current playback time." },
+    { "name": "w/transcription — Default", "desc": "Adds a 'View transcript' button above the play controls." },
+    { "name": "w/transcription — Playing", "desc": "Same as w/transcription Default but in playing state with pause icon." },
+    { "name": "w/transcription expanded — Playing", "desc": "Transcript fully expanded: 'Hide transcript' button + settings icon at top, then transcript body, then waveform/play controls at bottom." }
+  ],
+  "behavior": {
+    "interactive": "Tap play button to start/pause playback. Tap 'View transcript' to expand and reveal the AI-generated transcript. Tap 'Hide transcript' to collapse back. Settings icon opens transcript preferences.",
+    "dynamic": "Waveform fills from left to right as audio plays. Duration counter updates in real time. Play icon toggles between play_arrow and pause based on Status.",
+    "readReceipt": "Visible only when Service=RCS AND Chat=Outgoing. Positioned at bottom-right corner."
+  },
+  "states": [
+    ["Default", "Play button visible, waveform unplayed color, duration shows total length."],
+    ["Playing", "Pause button visible, waveform partially filled, duration shows elapsed time."],
+    ["Pressed", "Standard M3 state layer (10% opacity) on the button."],
+    ["Expanded", "Bubble height grows to fit transcript content with M3 easing transition."]
+  ],
+  "darkMode": {
+    "tokens": [
+      ["Primary", "#0B57D0", "#A8C7FA"],
+      ["On Primary", "#FFFFFF", "#062E6F"],
+      ["Surface", "#FFFFFF", "#131314"],
+      ["Surface Container", "#F0F4F9", "#1E1F20"],
+      ["Surface Container High", "#E9EEF6", "#282A2C"],
+      ["On Surface", "#1F1F1F", "#E3E3E3"],
+      ["On Surface Variant", "#444746", "#C4C7C5"]
+    ],
+    "notes": "Bubble surface swaps between light/dark surface tokens. RCS outgoing bubble uses the primary color which inverts (dark blue → light blue) between modes."
+  },
+  "motion": [
+    ["Play/Pause toggle", "150ms", "cubic-bezier(0.2, 0, 0, 1)"],
+    ["Waveform progress", "continuous", "linear (tracks audio time)"],
+    ["Transcript expand/collapse", "250ms", "cubic-bezier(0.2, 0, 0, 1)"],
+    ["Button hover state layer", "100ms", "cubic-bezier(0.2, 0, 0, 1)"]
+  ],
+  "writing": [
+    ["View transcript button", "Always 'View transcript' (sentence case). Label Large 14/20 Medium."],
+    ["Hide transcript button", "Always 'Hide transcript'. Same typography."],
+    ["Duration format", "MM:SS with leading zeros (e.g. 00:05, 01:23). Label Large 14/20 Medium."],
+    ["Transcript title", "AI-generated short summary. Title Medium 16/24 Medium. Max 1 line, ellipsis."],
+    ["Transcript body", "Full transcription text. Body Large 16/24 Regular."]
+  ],
+  "a11y": [
+    ["Role (play button)", "button"],
+    ["Label (play button)", "aria-label: 'Play voice message' / 'Pause voice message'"],
+    ["Role (transcript button)", "button, aria-expanded reflects state"],
+    ["Label (transcript button)", "aria-label: 'View transcript' or 'Hide transcript'"],
+    ["Waveform", "aria-hidden='true' (decorative)"],
+    ["Live region", "Transcript content aria-live='polite' for screen readers"],
+    ["Contrast", "WCAG 2.1 AA (4.5:1) for text, 3:1 for waveform"],
+    ["Keyboard", "Tab to focus, Space/Enter to activate, arrow keys to scrub (optional)"]
+  ],
+  "assets": [
+    ["Play icon", "Material Symbol", "play_arrow"],
+    ["Pause icon", "Material Symbol", "pause"],
+    ["View transcript icon", "Material Symbol", "open_in_full"],
+    ["Hide transcript icon", "Material Symbol", "close_fullscreen"],
+    ["Settings icon", "Material Symbol", "settings"],
+    ["Read receipt", "Material Symbol", "Double-check (RCS outgoing only)"],
+    ["Waveform", "Generated", "Visual representation of audio amplitude"]
+  ]
+}
