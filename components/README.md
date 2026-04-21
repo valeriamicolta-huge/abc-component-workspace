@@ -1,56 +1,31 @@
 # Components
 
-This folder contains all component documentation files for the ABC Component Library workspace.
+This folder holds every component in the ABC design system, one `.json` file per component. The live workspace reads these files and renders them in the sidebar.
 
-Each `.json` file represents one component from the design system. The live workspace tool reads these files and renders them dynamically in the sidebar.
+## Quick start: adding a component
 
-## How to add a new component
+1. Open the root-level `KICKOFF-PROMPT.md` in this repo
+2. Copy the prompt, paste into a new Claude.ai conversation (with Figma MCP connected)
+3. Fill in your name and the Figma component URL
+4. Claude extracts the component and gives you a JSON file
+5. Come back here and click **Add file → Create new file**
+6. Name the file exactly what Claude suggested (e.g., `rich-card.json`)
+7. Paste the JSON, commit
+8. Open `registry.json` and add Claude's registry entry (remember the comma!)
+9. Commit
+10. Refresh the live workspace → your component is there!
 
-1. Open a Claude.ai conversation with the **Figma MCP** connected
-2. Tell Claude: *"Extract the [Component Name] from Figma node [node-id] and generate a JSON file for our component workspace following the same schema as `link-preview-card.json` in this repo"*
-3. Claude will produce a complete component JSON file
-4. In this `components/` folder on GitHub, click **Add file → Create new file**
-5. Name it `your-component-name.json` (lowercase, hyphenated)
-6. Paste the JSON Claude generated and commit
-7. Open `registry.json` and add a new entry to the `components` array:
-   ```json
-   {
-     "id": "your-component-name",
-     "name": "Your Component Name",
-     "file": "your-component-name.json",
-     "addedBy": "Your Name",
-     "addedDate": "2026-04-21"
-   }
-   ```
-8. Commit the registry update
-9. Refresh the live workspace — your component appears in the sidebar
+## Rules
 
-## Component JSON schema
-
-Each component file must include these top-level fields:
-
-- `id` — unique identifier (kebab-case, used as filename)
-- `name` — display name shown in the UI
-- `figmaNodeId` — the Figma component set node ID (e.g. `"201:58651"`)
-- `figmaFileKey` — the Figma file key from the URL
-- `renderer` — name of the React renderer to use (use `"linkPreviewCard"` if it should render like the existing one, or omit to show a generic placeholder)
-- `description` — short description of the component
-- `properties` — variants, booleans, and text properties from Figma
-- `tokens` — corner radius, width, padding, typography
-- `colors` — light and dark mode color tables
-- `variants` — descriptions of each variant combination
-- `behavior` — interactive rules, dynamic behavior
-- `states` — Default, Pressed, Loading, etc.
-- `darkMode` — token mapping between light and dark
-- `motion` — transitions with durations and easing
-- `writing` — copy guidelines
-- `a11y` — accessibility specs
-- `assets` — icons, slots, overlays
-
-See `link-preview-card.json` in this folder as the reference example.
+- Filenames are **kebab-case** and match the `id` field inside the JSON (`rich-card.json` → `"id": "rich-card"`)
+- Every component must appear in `registry.json` or the workspace won't find it
+- Use Material 3 tokens (not raw values) and `dp` units (not `px`) in the JSON content
+- Include BOTH light and dark mode colors — skipping dark mode means the component looks broken when the toggle is flipped
 
 ## Avoiding duplicate work
 
-Before extracting a component, check the `registry.json` file to see what's already documented and who's working on what.
+Before you start, scan `registry.json` to see what's already done. If you're about to take on a big component, open a GitHub Issue titled `WIP: [Component Name]` or message your coworker so you don't both end up working on the same thing.
 
-When you start working on a new component, open a GitHub Issue with the title "WIP: [Component Name]" so your coworker knows it's being worked on.
+## Reference
+
+`link-preview-card.json` is the canonical example of the full JSON schema. Every new component should match its structure and level of detail.
