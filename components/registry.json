@@ -1,0 +1,11 @@
+{
+  "components": [
+    {
+      "id": "link-preview-card",
+      "name": "Link Preview Card",
+      "file": "link-preview-card.json",
+      "addedBy": "Valeria",
+      "addedDate": "2026-04-21"
+    }
+  ]
+}
