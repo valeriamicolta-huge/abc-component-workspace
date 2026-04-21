@@ -6,6 +6,13 @@
       "file": "link-preview-card.json",
       "addedBy": "Valeria",
       "addedDate": "2026-04-21"
+    },
+    {
+      "id": "voice-message",
+      "name": "Voice Message",
+      "file": "voice-message.json",
+      "addedBy": "Valeria",
+      "addedDate": "2026-04-21"
     }
   ]
 }
