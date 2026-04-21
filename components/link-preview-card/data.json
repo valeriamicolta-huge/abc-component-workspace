@@ -1,0 +1,92 @@
+{
+  "id": "link-preview-card",
+  "name": "Link Preview Card",
+  "figmaNodeId": "201:58651",
+  "figmaFileKey": "ILEhlPBUH6Y4lKwqSnPnSc",
+  "description": "A card that displays a preview of shared links, videos, or images. Background color is extracted from the media image.",
+  "properties": {
+    "Type": { "type": "VARIANT", "default": "Received links", "options": ["Received links", "Sent links", "Video", "Image"] },
+    "Styles": { "type": "VARIANT", "default": "RCS", "options": ["XMS", "RCS"] },
+    "Category": { "type": "VARIANT", "default": "Incoming", "options": ["Incoming", "Outgoing"] },
+    "Show Play/Pause": { "type": "BOOLEAN", "default": true }
+  },
+  "tokens": {
+    "cornerRadius": "20dp (corner-large-increased)",
+    "width": "330dp",
+    "mediaHeight": "187dp",
+    "padding": { "top": 14, "right": 32, "bottom": 20, "left": 16 },
+    "typography": {
+      "title": { "token": "Title Medium", "spec": "Google Sans Text Medium, 16/24, tracking 0" },
+      "brand": { "token": "Body Small", "spec": "Google Sans Text Regular, 12/16, tracking 0.1" },
+      "link": { "token": "Body Large", "spec": "Google Sans Text Regular, 16/24, tracking 0" }
+    }
+  },
+  "colors": {
+    "light": [
+      ["Title (dark bg)", "White", "#FFFFFF"],
+      ["Title (light bg)", "On Surface", "#1F1F1F"],
+      ["Brand (dark bg)", "White 70%", "rgba(255,255,255,0.7)"],
+      ["Brand (light bg)", "On Surface Variant", "#444746"],
+      ["Link area (Sent RCS)", "Primary", "#0B57D0"],
+      ["Link area (Sent XMS)", "Primary Container", "#D3E3FD"],
+      ["Link area (Received)", "Surface Container", "#F0F4F9"]
+    ],
+    "dark": [
+      ["Title (dark bg)", "White", "#FFFFFF"],
+      ["Title (light bg)", "On Surface", "#E3E3E3"],
+      ["Brand (dark bg)", "White 70%", "rgba(255,255,255,0.7)"],
+      ["Brand (light bg)", "On Surface Variant", "#C4C7C5"],
+      ["Link area (Sent RCS)", "Primary", "#A8C7FA"],
+      ["Link area (Sent XMS)", "Primary Container", "#0842A0"],
+      ["Link area (Received)", "Surface Container", "#1E1F20"]
+    ]
+  },
+  "variants": [
+    { "name": "Image", "desc": "Media thumbnail, top corners 20dp. Read receipt (RCS only). No play button." },
+    { "name": "Video", "desc": "Media with play overlay, top corners 20dp. Play/Pause centered. Read receipt (RCS only)." },
+    { "name": "Sent Links", "desc": "Link text area on top, then media with play overlay. Link bg: Primary (RCS) or Primary Container (XMS). Bottom corners 12dp." },
+    { "name": "Received Links", "desc": "Link text area on top, then media. Link bg: Surface Container. No read receipt." }
+  ],
+  "behavior": {
+    "interactive": "Tap opens URL. Long press opens context menu.",
+    "dynamic": "Background extracted from dominant image color. Text adapts to bg luminance.",
+    "readReceipt": "Visible when Styles=RCS AND Category=Outgoing."
+  },
+  "states": [
+    ["Default", "All content visible per variant."],
+    ["Pressed", "Background dims (opacity: 0.9)."],
+    ["Loading", "Shimmer placeholder in media area."]
+  ],
+  "darkMode": {
+    "tokens": [
+      ["Primary", "#0B57D0", "#A8C7FA"],
+      ["On Primary", "#FFFFFF", "#062E6F"],
+      ["Primary Container", "#D3E3FD", "#0842A0"],
+      ["Surface Container", "#F0F4F9", "#1E1F20"],
+      ["On Surface", "#1F1F1F", "#E3E3E3"],
+      ["On Surface Variant", "#444746", "#C4C7C5"]
+    ],
+    "notes": "Default bg (no image): #E0E0E0 light / #3C3C3C dark."
+  },
+  "motion": [
+    ["Press feedback", "100ms", "cubic-bezier(0.2, 0, 0, 1)"],
+    ["Image fade-in", "200ms", "cubic-bezier(0.2, 0, 0, 1)"]
+  ],
+  "writing": [
+    ["Title", "Max 2 lines, ellipsis, title case."],
+    ["Brand", "Single line, domain format."],
+    ["Link", "Raw URL, max 3 lines, word-break."]
+  ],
+  "a11y": [
+    ["Role", "article or link"],
+    ["Label", "aria-label: {Title} from {Brand}"],
+    ["Contrast", "WCAG 2.1 AA (4.5:1) against bg"],
+    ["Keyboard", "Tab to focus, Enter to activate"]
+  ],
+  "assets": [
+    ["Play button", "Overlay", "play_arrow Material Symbol"],
+    ["Brand logo", "Slot", "16x16 favicon"],
+    ["Read receipt", "Icon", "Double-check (RCS outgoing)"],
+    ["Media", "Slot", "Image or video thumbnail"]
+  ]
+}
