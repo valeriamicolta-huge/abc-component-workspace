@@ -1,0 +1,16 @@
+{
+  "components": [
+    {
+      "id": "link-preview-card",
+      "name": "Link Preview Card",
+      "addedBy": "Valeria",
+      "addedDate": "2026-04-21"
+    },
+    {
+      "id": "voice-message",
+      "name": "Voice Message",
+      "addedBy": "Valeria",
+      "addedDate": "2026-04-21"
+    }
+  ]
+}
