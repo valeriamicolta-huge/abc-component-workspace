@@ -35,18 +35,37 @@ const useT = () => useContext(ThemeCtx);
 function getDominantColor(src, cb) { const img = new Image(); img.crossOrigin = "anonymous"; img.onload = () => { const c = document.createElement("canvas"), x = c.getContext("2d"); c.width = c.height = 50; x.drawImage(img, 0, 0, 50, 50); const d = x.getImageData(0, 0, 50, 50).data; let r = 0, g = 0, b = 0, n = 0; for (let i = 0; i < d.length; i += 16) { r += d[i]; g += d[i+1]; b += d[i+2]; n++; } cb("#" + [r, g, b].map(v => Math.round(v/n).toString(16).padStart(2, "0")).join("")); }; img.src = src; }
 function lum(h) { const r = parseInt(h.slice(1,3),16), g = parseInt(h.slice(3,5),16), b = parseInt(h.slice(5,7),16); return (0.299*r+0.587*g+0.114*b)/255; }
 
+/* ═══ Shared components — loaded once, injected into every renderer ═══ */
+const SHARED_BASE_URL = `https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/${BRANCH}/${COMPONENTS_PATH}/_shared/`;
+const sharedComponents = {}; /* { ReadReceiptIcon: fn, MediaPlaceholder: fn, ... } */
+
+async function loadSharedComponent(name) {
+  if (sharedComponents[name]) return; /* already loaded */
+  try {
+    const url = SHARED_BASE_URL + name + "/component.jsx?t=" + Date.now();
+    const r = await fetch(url);
+    if (!r.ok) return;
+    const jsxText = await r.text();
+    const transformed = Babel.transform(jsxText, { presets: ["react"] }).code;
+    /* Each shared component file ends with: const Component = ComponentName; */
+    const factory = new Function(...Object.keys(RENDERER_GLOBALS), transformed + "\n; return typeof Component !== 'undefined' ? Component : null;");
+    const fn = factory(...Object.values(RENDERER_GLOBALS));
+    if (fn) sharedComponents[name] = fn;
+  } catch(e) {
+    console.warn("Failed to load shared component " + name + ":", e);
+  }
+}
+
 /* ═══ Renderer sandbox — globals available inside renderer.jsx files ═══ */
 const RENDERER_GLOBALS = { React, useState, useRef, useEffect, useContext, THEMES, S, ThemeCtx, useT, lum };
 
 /* ═══ Compile a renderer.jsx text string into a React component ═══ */
-function compileRenderer(jsxText, componentId) {
+function compileRenderer(jsxText, componentId, extraGlobals) {
   try {
-    /* Transform JSX → JS using Babel (already loaded on the page) */
+    const allGlobals = { ...RENDERER_GLOBALS, ...extraGlobals };
     const transformed = Babel.transform(jsxText, { presets: ["react"] }).code;
-    /* Wrap in a function that takes globals and returns the renderer.
-       The renderer.jsx file should end with: return Renderer; */
-    const factory = new Function(...Object.keys(RENDERER_GLOBALS), transformed + "\n; return typeof Renderer !== 'undefined' ? Renderer : null;");
-    return factory(...Object.values(RENDERER_GLOBALS));
+    const factory = new Function(...Object.keys(allGlobals), transformed + "\n; return typeof Renderer !== 'undefined' ? Renderer : null;");
+    return factory(...Object.values(allGlobals));
   } catch (e) {
     console.error("Failed to compile renderer for " + componentId + ":", e);
     return null;
@@ -169,7 +188,18 @@ function App() {
         const r = await fetch(rendererUrl);
         if (!r.ok) { setRendererError("No renderer.jsx found in components/" + selComp.id + "/"); return; }
         const jsxText = await r.text();
-        const compiled = compileRenderer(jsxText, selComp.id);
+        /* Load any declared shared component dependencies first */
+        const deps = selComp.dependencies || [];
+        await Promise.all(deps.map(dep => loadSharedComponent(dep)));
+        /* Build extra globals from loaded shared components */
+        const extraGlobals = {};
+        deps.forEach(dep => { if (sharedComponents[dep]) {
+          /* Convert kebab-case dep name to PascalCase for the global name
+             e.g. "read-receipt-icon" → "ReadReceiptIcon" */
+          const pascal = dep.split("-").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join("");
+          extraGlobals[pascal] = sharedComponents[dep];
+        }});
+        const compiled = compileRenderer(jsxText, selComp.id, extraGlobals);
         if (compiled) { setRenderer(() => compiled); }
         else { setRendererError("Renderer code failed to compile. See browser console for details."); }
       } catch (e) {
