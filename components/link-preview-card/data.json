@@ -4,6 +4,7 @@
   "figmaNodeId": "201:58651",
   "figmaFileKey": "ILEhlPBUH6Y4lKwqSnPnSc",
   "description": "A card that displays a preview of shared links, videos, or images. Background color is extracted from the media image.",
+  "contentFields": ["mediaImage", "title", "brand"],
   "properties": {
     "Type": { "type": "VARIANT", "default": "Received links", "options": ["Received links", "Sent links", "Video", "Image"] },
     "Styles": { "type": "VARIANT", "default": "RCS", "options": ["XMS", "RCS"] },
