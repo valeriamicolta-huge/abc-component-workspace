@@ -5,6 +5,12 @@
   "figmaFileKey": "ILEhlPBUH6Y4lKwqSnPnSc",
   "description": "A card that displays a preview of shared links, videos, or images. Background color is extracted from the media image.",
   "contentFields": ["mediaImage", "title", "brand"],
+  "propertyVisibility": {
+    "Show Play/Pause": { "when": { "Type": ["Video"] } },
+    "Category":        { "when": { "Type": ["Video", "Image"] } },
+    "Read receipt Mode":   { "when": { "Type": ["Sent links", "Video", "Image"], "Styles": ["RCS"] } },
+    "Read receipt Status": { "when": { "Type": ["Sent links", "Video", "Image"], "Styles": ["RCS"] } }
+  },
   "properties": {
     "Type": { "type": "VARIANT", "default": "Received links", "options": ["Received links", "Sent links", "Video", "Image"] },
     "Styles": { "type": "VARIANT", "default": "RCS", "options": ["XMS", "RCS"] },
