@@ -9,6 +9,7 @@
     "title",
     "brand"
   ],
+  "dependencies": ["read-receipt-icon"],
   "propertyVisibility": {
     "Show Play/Pause": {
       "when": {
