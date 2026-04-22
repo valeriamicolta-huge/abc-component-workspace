@@ -211,8 +211,20 @@ function App() {
     Object.entries(c.properties).forEach(([k, v]) => { m += "| " + k + " | " + v.type + " | " + v.default + " | " + (v.options ? v.options.join(", ") : "true / false") + " |\n"; });
     m += "\n### Variants\n\n";
     c.variants.forEach(v => { m += "#### " + v.name + "\n\n" + v.desc + "\n\n"; });
-    m += "## Behavior & States\n\n" + c.behavior.interactive + "\n\n" + c.behavior.dynamic + "\n\n**Read Receipt:** " + c.behavior.readReceipt + "\n\n| State | Description |\n|---|---|\n";
+    m += "## Behavior & States\n\n";
+    m += c.behavior.interactive + "\n\n";
+    m += c.behavior.dynamic + "\n\n";
+    m += "**Play button:** " + (c.behavior.playButton || "") + "\n\n";
+    m += "**Read receipt:** " + c.behavior.readReceipt + "\n\n";
+    m += "### States\n\n| State | Description |\n|---|---|\n";
     c.states.forEach(s => { m += "| " + s[0] + " | " + s[1] + " |\n"; });
+    if (c.conditionalLogic) {
+      m += "\n## Conditional Logic\n\n" + c.conditionalLogic.description + "\n\n";
+      m += "| Condition | Rendered | Hidden |\n|---|---|---|\n";
+      c.conditionalLogic.rules.forEach(r => {
+        m += "| " + r.condition + " | " + r.rendered.join(", ") + " | " + (r.hidden.length ? r.hidden.join(", ") : "—") + " |\n";
+      });
+    }
     m += "\n## Dark Mode\n\n| Token | Light | Dark |\n|---|---|---|\n";
     c.darkMode.tokens.forEach(t => { m += "| " + t[0] + " | `" + t[1] + "` | `" + t[2] + "` |\n"; });
     m += "\n" + c.darkMode.notes + "\n\n## Motion\n\n| Transition | Duration | Easing |\n|---|---|---|\n";
