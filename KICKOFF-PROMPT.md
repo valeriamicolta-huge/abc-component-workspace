@@ -48,6 +48,7 @@ Use this exact schema (look at `components/link-preview-card/data.json` in our r
   "figmaNodeId": "XXX:XXX",
   "figmaFileKey": "ILEhlPBUH6Y4lKwqSnPnSc",
   "description": "One or two sentences about what this component does.",
+  "contentFields": ["mediaImage", "title", "brand"],
   "properties": {
     "PropertyName": { "type": "VARIANT", "default": "...", "options": ["...", "..."] },
     "BooleanProperty": { "type": "BOOLEAN", "default": true }
@@ -113,6 +114,7 @@ Look at `components/link-preview-card/renderer.jsx` and `components/voice-messag
 3. **Include BOTH light and dark mode colors.** Every element with a color needs both.
 4. **Describe variant combinations**, not just properties individually.
 5. **Don't invent information.** If Figma doesn't specify something, note it explicitly.
+6. **Set `contentFields` correctly.** This tells the workspace which content controls to show in the right panel. Only include fields the component actually uses. Available values: `"mediaImage"` (image upload with dominant color), `"title"` (editable title text), `"brand"` (editable brand/domain). If the component has no editable content, use `"contentFields": []`.
 
 ### Step 3 — Output
 
