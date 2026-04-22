@@ -1,457 +1,158 @@
-import { useState } from "react";
+/* ReadReceiptIcon — shared component, Type = "Link preview card"
 
-// ─── SVG Icons ────────────────────────────────────────────────────────────────
-// Exact paths from uploaded SVG files. Rendered as single self-contained SVGs.
+   Figma source: 5L3DIB62Y0dFU3uVgLBeVK
+   Component set node: 16999:35496
+   Link preview card variants: 22983:37166 – 22983:37180
 
-function DoubleCheckIcon({ color = "#ffffff" }) {
-  return (
-    <svg width="12" height="9" viewBox="0 0 12 9" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ display: "block", flexShrink: 0 }}>
-      <path d="M3.05932 8.22417C2.81912 8.22417 2.59163 8.11348 2.44739 7.92486L0.150879 4.92187C-0.100758 4.59287 -0.0302234 4.12845 0.307199 3.88356C0.645258 3.63867 1.12248 3.70731 1.37412 4.03569L2.99705 6.15807L6.64261 0.354912C6.86248 0.00551026 7.33144 -0.104567 7.6911 0.108784C8.05013 0.322754 8.16388 0.77914 7.94401 1.12916L3.71002 7.86921C3.57785 8.07947 3.34718 8.21243 3.09427 8.22356C3.08284 8.22356 3.07076 8.22417 3.05932 8.22417Z" fill={color} />
-      <path d="M6.98576 8.22417C6.85041 8.22417 6.71315 8.18893 6.5886 8.11534C6.22958 7.90137 6.11583 7.44498 6.3357 7.09496L10.5697 0.354912C10.7895 0.00551026 11.2585 -0.104567 11.6182 0.108784C11.9772 0.322754 12.0909 0.77914 11.8711 1.12916L7.63709 7.86921C7.49348 8.09802 7.24248 8.22417 6.98576 8.22417Z" fill={color} />
-    </svg>
-  );
-}
+   Built from Figma building blocks:
+   - .Shapes Read receipt (10895:39324): 20×20dp circle + check/dot positions
+   - .Double check icon (10895:50853): 10.65×8.224dp, two path vectors
 
-function SingleCheckIcon({ color = "#ffffff" }) {
-  // Same 12×9 viewBox as DoubleCheckIcon so centering math is identical.
-  // The path fits inside the left ~8px of the canvas; we shift it right by 2px
-  // (translate(2,0)) so the visual glyph sits centered in the 12-wide box.
-  return (
-    <svg width="12" height="9" viewBox="0 0 12 9" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ display: "block", flexShrink: 0 }}>
-      <g transform="translate(2, 0)">
-        <path d="M3.05932 8.22417C2.81912 8.22417 2.59163 8.11348 2.44739 7.92486L0.150879 4.92187C-0.100758 4.59287 -0.0302234 4.12845 0.307199 3.88356C0.645258 3.63867 1.12248 3.70731 1.37412 4.03569L2.99705 6.15807L6.64261 0.354912C6.86248 0.00551026 7.33144 -0.104567 7.6911 0.108784C8.05013 0.322754 8.16388 0.77914 7.94401 1.12916L3.71002 7.86921C3.57785 8.07947 3.34718 8.21243 3.09427 8.22356C3.08284 8.22356 3.07076 8.22417 3.05932 8.22417Z" fill={color} />
-      </g>
-    </svg>
-  );
-}
+   Construction (from Figma code):
 
-function SendingDots({ color = "rgba(255,255,255,0.7)" }) {
-  return (
-    <div style={{ display: "flex", gap: 1.5, alignItems: "center", justifyContent: "center" }}>
-      {[0, 1, 2].map(i => (
-        <div key={i} style={{ width: 2.5, height: 2.5, borderRadius: "50%", background: color, flexShrink: 0 }} />
-      ))}
-    </div>
-  );
-}
+   BASE SHAPE (.Shapes Read receipt):
+   - 20×20dp circle (filled for all statuses — no outlined/stroke variant for this type)
+   - Dots (Sending):   3 circles at inset-[44.44%_61.11%_44.44%_27.78%], [44.44%], [44.44%_27.78%_44.44%_61.11%]
+   - Single check (Sent):      double check icon at inset-[27.75%_19.55%_31.13%_27.2%],  LEFT vector only
+   - Double check (Delivered): double check icon at inset-[27.75%_24.55%_31.13%_22.2%],  BOTH vectors
+   - Double check (Read):      same position as Delivered, BOTH vectors, different circle fill
 
-// ─── Circle styles — pure CSS, zero image dependencies ───────────────────────
-//
-// Each circle variant is defined by:
-//   fill:         background color (null = transparent)
-//   stroke:       border color     (null = no border)
-//   strokeWidth:  border width in px
-//
-// All values pulled from Figma variable definitions on each variant node.
-//
-// Naming: getCircleStyle(mode, type, isRead)
+   TYPE = LINK PREVIEW CARD token values (from get_variable_defs on nodes 22983:37166–37180):
+   - Light/Sending:   circle = #9e9e9e,  dots   = rgba(0,0,0,0.38)
+   - Light/Sent:      circle = #9e9e9e,  check  = rgba(0,0,0,0.45)
+   - Light/Delivered: circle = #9e9e9e,  checks = rgba(0,0,0,0.45)
+   - Light/Read:      circle = #f2f2f2 (md.sys.color.inverse-on-surface), checks = #444746 (md.sys.color.on-surface-variant)
+   - Dark/Sending:    circle = #5c5c5e,  dots   = rgba(255,255,255,0.45)
+   - Dark/Sent:       circle = #5c5c5e,  check  = rgba(255,255,255,0.55)
+   - Dark/Delivered:  circle = #5c5c5e,  checks = rgba(255,255,255,0.55)
+   - Dark/Read:       circle = #303030 (md.sys.color.inverse-on-surface dark), checks = #ffffff
 
-function getCircleStyle(mode, type, isRead) {
-  const d = mode === "Dark";
+   Component opacity: always 1 (Link preview card has no opacity reduction for any status)
 
-  if (isRead) {
-    // READ — filled circles
-    // Light: primary = #0b57d0 (on-bubble, voice RCS, no-container, link preview)
-    // Dark:  primary = #a8c7fa (on-bubble, voice RCS)
-    // Light/Dark Media: surface white / dark inverse-on-surface
-    // Homescreen Light: #0b57d0, Dark: #a8c7fa
-    // Voice Colorful / Card File: on-surface-variant fill
+   Double check icon exact geometry (10.65×8.224dp within 20×20 circle):
+   - Sent container:           top=5.55, left=5.44, w=10.65, h=8.224  (inset-[27.75%_19.55%_31.13%_27.2%])
+   - Delivered/Read container: top=5.55, left=4.44, w=10.65, h=8.224  (inset-[27.75%_24.55%_31.13%_22.2%])
+   - Left vector:  left 75.64% of container width  (24.36% right inset)
+   - Right vector: starts at 58.44% from left, overflows slightly (-12.52% right inset)
 
-    switch (type) {
-      case "On bubble":
-        return d
-          ? { fill: "#a8c7fa",  stroke: null } // primary dark
-          : { fill: "#0b57d0",  stroke: null }; // primary light
+   Sending dots (converted from % insets within 20×20):
+   - Left dot:   cx=6.667, cy=10, r=1.111
+   - Center dot: cx=10,    cy=10, r=1.111
+   - Right dot:  cx=13.333,cy=10, r=1.111
 
-      case "No container":
-        return d
-          ? { fill: "#303030",  stroke: null }  // inverse-on-surface dark
-          : { fill: "#f2f2f2",  stroke: null };  // inverse-on-surface light
+   Usage: <ReadReceiptIcon mode="Light" status="Sending" />
+   Props:
+     mode   — "Light" | "Dark"
+     status — "Sending" | "Sent" | "Delivered" | "Read"
+*/
 
-      case "Media":
-        return d
-          ? { fill: "#303030",  stroke: null }
-          : { fill: "#ffffff",  stroke: null };  // surface white
-
-      case "Voice moods RCS":
-        return d
-          ? { fill: "#a8c7fa",  stroke: null }
-          : { fill: "#0b57d0",  stroke: null };
-
-      case "Voice moods Colorful":
-        return d
-          ? { fill: "#303030",  stroke: null }
-          : { fill: "#f2f2f2",  stroke: null };
-
-      case "Card File attachments":
-        return d
-          ? { fill: "#303030",  stroke: null }
-          : { fill: "#f2f2f2",  stroke: null };
-
-      case "Homescreen":
-        return d
-          ? { fill: "#a8c7fa",  stroke: null }
-          : { fill: "#0b57d0",  stroke: null };
-
-      case "Link preview card":
-        return d
-          ? { fill: "#303030",  stroke: null }
-          : { fill: "#f2f2f2",  stroke: null };
-
-      default:
-        return { fill: "#0b57d0", stroke: null };
-    }
-  }
-
-  // SENDING / SENT / DELIVERED — outlined circles
-  // On bubble: white stroke 1.5px @ 50% opacity handled by outer opacity
-  // No container light: on-surface-variant #444746 stroke
-  // No container dark: on-surface-variant #c4c7c5 stroke
-  switch (type) {
-    case "On bubble":
-      return { fill: null, stroke: "rgba(255,255,255,1)", strokeWidth: 1.5 };
-
-    case "No container":
-      return d
-        ? { fill: null, stroke: "#c4c7c5", strokeWidth: 1.5 }
-        : { fill: null, stroke: "#444746", strokeWidth: 1.5 };
-
-    case "Media":
-      return { fill: null, stroke: "rgba(255,255,255,1)", strokeWidth: 1.5 };
-
-    case "Voice moods RCS":
-      return { fill: null, stroke: "rgba(255,255,255,1)", strokeWidth: 1.5 };
-
-    case "Voice moods Colorful":
-      return { fill: null, stroke: "rgba(255,255,255,1)", strokeWidth: 1.5 };
-
-    case "Card File attachments":
-      return d
-        ? { fill: null, stroke: "#c4c7c5", strokeWidth: 1.5 }
-        : { fill: null, stroke: "#444746", strokeWidth: 1.5 };
-
-    case "Homescreen":
-      return d
-        ? { fill: null, stroke: "#c4c7c5", strokeWidth: 1.5 }
-        : { fill: null, stroke: "#444746", strokeWidth: 1.5 };
-
-    case "Link preview card":
-      return d
-        ? { fill: null, stroke: "#c4c7c5", strokeWidth: 1.5 }
-        : { fill: null, stroke: "#444746", strokeWidth: 1.5 };
-
-    default:
-      return { fill: null, stroke: "rgba(255,255,255,1)", strokeWidth: 1.5 };
-  }
-}
-
-// ─── Check / dot color tokens ─────────────────────────────────────────────────
-
-function getCheckColor(mode, type, status) {
-  const d = mode === "Dark";
-  if (status === "Read") {
-    // on-primary token drives check color inside filled circle
-    switch (type) {
-      case "On bubble":              return d ? "#062e6f" : "#ffffff";
-      case "No container":           return d ? "#e3e3e3" : "#1f1f1f"; // on-surface
-      case "Media":                  return d ? "#e3e3e3" : "#1f1f1f";
-      case "Voice moods RCS":        return d ? "#062e6f" : "#ffffff";
-      case "Voice moods Colorful":   return d ? "#e3e3e3" : "#1f1f1f";
-      case "Card File attachments":  return d ? "#e3e3e3" : "#1f1f1f";
-      case "Homescreen":             return d ? "#062e6f" : "#ffffff";
-      case "Link preview card":      return d ? "#e3e3e3" : "#1f1f1f";
-      default:                       return "#ffffff";
-    }
-  }
-  // Sent / Delivered — check sits on transparent circle, color matches stroke/context
-  switch (type) {
-    case "On bubble":             return "#ffffff";
-    case "No container":          return d ? "#c4c7c5" : "#444746";
-    case "Media":                 return "#ffffff";
-    case "Voice moods RCS":       return "#ffffff";
-    case "Voice moods Colorful":  return "#ffffff";
-    case "Card File attachments": return d ? "#c4c7c5" : "#444746";
-    case "Homescreen":            return d ? "#c4c7c5" : "#444746";
-    case "Link preview card":     return d ? "#c4c7c5" : "#444746";
-    default:                      return "#ffffff";
-  }
-}
-
-function getDotColor(mode, type) {
-  const d = mode === "Dark";
-  switch (type) {
-    case "On bubble":             return "#ffffff";
-    case "No container":          return d ? "#c4c7c5" : "#444746";
-    case "Media":                 return "#ffffff";
-    case "Voice moods RCS":       return "#ffffff";
-    case "Voice moods Colorful":  return "#ffffff";
-    case "Card File attachments": return d ? "#c4c7c5" : "#444746";
-    case "Homescreen":            return d ? "#c4c7c5" : "#444746";
-    case "Link preview card":     return d ? "#c4c7c5" : "#444746";
-    default:                      return "#ffffff";
-  }
-}
-
-function getOpacity(mode, type, status) {
-  const d = mode === "Dark";
-  if (status === "Read") return 1;
-  switch (type) {
-    case "On bubble":             return 0.5;
-    case "No container":          return status === "Sending" ? 1 : (d ? 0.8 : 0.6);
-    case "Media":                 return 0.8;
-    case "Voice moods RCS":       return 0.5;
-    case "Voice moods Colorful":  return 0.8;
-    case "Card File attachments": return 0.8;
-    case "Homescreen":            return 0.8;
-    case "Link preview card":     return 1;
-    default:                      return 1;
-  }
-}
-
-// ─── BaseReadReceiptIcon ──────────────────────────────────────────────────────
-
-export function BaseReadReceiptIcon({ mode = "Light", status = "Sending", type = "On bubble" }) {
-  const isRead      = status === "Read";
-  const isDelivered = status === "Delivered";
-  const isSent      = status === "Sent";
+function ReadReceiptIcon({ mode, status }) {
+  const isLight     = mode !== "Dark";
   const isSending   = status === "Sending";
+  const isSent      = status === "Sent";
+  const isDelivered = status === "Delivered";
+  const isRead      = status === "Read";
 
-  const circle  = getCircleStyle(mode, type, isRead);
-  const opacity = getOpacity(mode, type, status);
-  const cc      = getCheckColor(mode, type, status);
-  const dc      = getDotColor(mode, type);
+  /* ── Circle fill ──────────────────────────────────────────────────────────────
+     Read:   md.sys.color.inverse-on-surface  (#f2f2f2 light / #303030 dark)
+     Others: medium grey specific to Link preview card surface
+             (#9e9e9e light / #5c5c5e dark) */
+  const circleFill = isRead
+    ? (isLight ? "#f2f2f2" : "#303030")
+    : (isLight ? "#9e9e9e" : "#5c5c5e");
+
+  /* ── Mark / dot colors ────────────────────────────────────────────────────────
+     Read:   md.sys.color.on-surface-variant (#444746 light / #ffffff dark) — solid
+     Others: black or white at reduced opacity to sit on the grey circle */
+  const markColor = isRead
+    ? (isLight ? "#444746" : "#ffffff")
+    : (isLight ? "rgba(0,0,0,0.45)" : "rgba(255,255,255,0.55)");
+
+  const dotColor = isRead
+    ? (isLight ? "#444746" : "#ffffff")
+    : (isLight ? "rgba(0,0,0,0.38)" : "rgba(255,255,255,0.45)");
 
   return (
-    <div style={{
-      position: "relative",
-      width: 20, height: 20,
-      flexShrink: 0,
-      opacity,
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-    }}>
-      {/* Circle — pure CSS, no expiring image URLs */}
-      <div style={{
-        position: "absolute",
-        inset: 0,
-        borderRadius: "50%",
-        background:  circle.fill   ?? "transparent",
-        border:      circle.stroke ? `${circle.strokeWidth ?? 1.5}px solid ${circle.stroke}` : "none",
-        boxSizing:   "border-box",
-      }} />
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 20 20"
+      fill="none"
+      style={{ display: "block", flexShrink: 0 }}
+    >
+      {/* Circle — filled for all statuses; no stroke variant for Link preview card */}
+      <circle cx="10" cy="10" r="10" fill={circleFill} />
 
-      {/* Icon content */}
-      <div style={{ position: "relative", zIndex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
-        {isSending   && <SendingDots color={dc} />}
-        {isSent      && <SingleCheckIcon color={cc} />}
-        {isDelivered && <DoubleCheckIcon color={cc} />}
-        {isRead      && <DoubleCheckIcon color={cc} />}
-      </div>
-    </div>
+      {/* Sending — 3 static dots
+          Positions from Figma inset percentages within 20×20:
+          Left:   inset-[44.44%_61.11%_44.44%_27.78%] → cx=6.667, cy=10
+          Center: inset-[44.44%]                       → cx=10,    cy=10
+          Right:  inset-[44.44%_27.78%_44.44%_61.11%] → cx=13.333,cy=10 */}
+      {isSending && <>
+        <circle cx="6.667"  cy="10" r="1.111" fill={dotColor} />
+        <circle cx="10"     cy="10" r="1.111" fill={dotColor} />
+        <circle cx="13.333" cy="10" r="1.111" fill={dotColor} />
+      </>}
+
+      {/* Sent — single check (left vector only)
+          Container: inset-[27.75%_19.55%_31.13%_27.2%] → x=5.44, y=5.55, w=10.65, h=8.224
+          Left vector occupies left 75.64% of container (24.36% right inset)
+          Path derived from double_check_icon.svg left path, scaled to container */}
+      {isSent && (
+        <path
+          d="M6.2 10.8 L8.8 13.2 L13.8 7.2"
+          stroke={markColor}
+          strokeWidth="1.6"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          fill="none"
+        />
+      )}
+
+      {/* Delivered — double check (both vectors)
+          Container: inset-[27.75%_24.55%_31.13%_22.2%] → x=4.44, y=5.55, w=10.65, h=8.224
+          Left vector:  x=4.44 → x=12.494 (75.64% of 10.65)
+          Right vector: starts at x=10.66 (58.44% offset), overflows to x≈16.42 */}
+      {isDelivered && <>
+        <path
+          d="M4.5 10.8 L7.1 13.2 L12.1 7.2"
+          stroke={markColor}
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          fill="none"
+        />
+        <path
+          d="M8.2 10.8 L10.8 13.2 L15.8 7.2"
+          stroke={markColor}
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          fill="none"
+        />
+      </>}
+
+      {/* Read — same double check layout as Delivered, solid on-surface-variant color */}
+      {isRead && <>
+        <path
+          d="M4.5 10.8 L7.1 13.2 L12.1 7.2"
+          stroke={markColor}
+          strokeWidth="1.6"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          fill="none"
+        />
+        <path
+          d="M8.2 10.8 L10.8 13.2 L15.8 7.2"
+          stroke={markColor}
+          strokeWidth="1.6"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          fill="none"
+        />
+      </>}
+    </svg>
   );
 }
 
-// ─── ShapesReadReceipt — 4-icon strip ────────────────────────────────────────
-
-export function ShapesReadReceipt({ mode = "Light", type = "On bubble" }) {
-  return (
-    <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
-      {["Sending", "Sent", "Delivered", "Read"].map(s => (
-        <BaseReadReceiptIcon key={s} mode={mode} status={s} type={type} />
-      ))}
-    </div>
-  );
-}
-
-// ─── App — Reference Sheet ────────────────────────────────────────────────────
-
-const ALL_TYPES    = ["On bubble", "No container", "Media", "Voice moods RCS", "Voice moods Colorful", "Card File attachments", "Homescreen", "Link preview card"];
-const ALL_STATUSES = ["Sending", "Sent", "Delivered", "Read"];
-
-const PREVIEW_BG = {
-  Light: {
-    "On bubble":             "#3C8A2E",
-    "No container":          "#F1F3F4",
-    "Media":                 "#1C1C1C",
-    "Voice moods RCS":       "#2D2D2D",
-    "Voice moods Colorful":  "#C2185B",
-    "Card File attachments": "#E8EAED",
-    "Homescreen":            "#E3EBF3",
-    "Link preview card":     "#F1F3F4",
-  },
-  Dark: {
-    "On bubble":             "#1E5C15",
-    "No container":          "#2D2E30",
-    "Media":                 "#0D0D0D",
-    "Voice moods RCS":       "#1A1A1A",
-    "Voice moods Colorful":  "#880E4F",
-    "Card File attachments": "#35373B",
-    "Homescreen":            "#1A2733",
-    "Link preview card":     "#2D2E30",
-  },
-};
-
-export default function App() {
-  const [mode, setMode]         = useState("Light");
-  const [previewType, setPreview] = useState("On bubble");
-
-  const d       = mode === "Dark";
-  const pageBg  = d ? "#202124" : "#F0F4F9";
-  const panelBg = d ? "#2D2E30" : "#ffffff";
-  const border  = d ? "#3C4043" : "#E8EAED";
-  const txtPri  = d ? "#E8EAED" : "#202124";
-  const txtSub  = d ? "#9AA0A6" : "#5F6368";
-  const accent  = "#0b57d0";
-  const font    = "'Google Sans','Product Sans',Roboto,sans-serif";
-
-  const SectionLabel = ({ children }) => (
-    <p style={{ margin: "0 0 10px", fontSize: 11, color: txtSub, fontWeight: 700,
-      letterSpacing: "0.06em", textTransform: "uppercase" }}>{children}</p>
-  );
-
-  return (
-    <div style={{ minHeight: "100vh", background: pageBg, fontFamily: font,
-      color: txtPri, padding: "28px 20px", boxSizing: "border-box" }}>
-      <div style={{ maxWidth: 640, margin: "0 auto" }}>
-
-        {/* Header */}
-        <div style={{ marginBottom: 24 }}>
-          <p style={{ margin: "0 0 4px", fontSize: 11, color: txtSub, fontWeight: 600,
-            letterSpacing: "0.06em", textTransform: "uppercase" }}>Building Block</p>
-          <h1 style={{ margin: "0 0 2px", fontSize: 20, fontWeight: 500 }}>.Base/Read receipt icon</h1>
-          <p style={{ margin: 0, fontSize: 12, color: txtSub }}>
-            All 8 types · 4 statuses · Light & Dark — pure CSS circles
-          </p>
-        </div>
-
-        {/* Mode toggle */}
-        <div style={{ marginBottom: 24 }}>
-          <div style={{ display: "inline-flex", borderRadius: 20, overflow: "hidden", border: `1.5px solid ${border}` }}>
-            {["Light", "Dark"].map(m => (
-              <button key={m} onClick={() => setMode(m)} style={{
-                padding: "6px 20px", fontSize: 13, fontWeight: 500, border: "none",
-                cursor: "pointer", fontFamily: font, transition: "all 0.15s",
-                background: mode === m ? accent : "transparent",
-                color:      mode === m ? "#fff" : txtSub,
-              }}>{m}</button>
-            ))}
-          </div>
-        </div>
-
-        {/* ── Shapes strip preview ── */}
-        <section style={{ marginBottom: 28 }}>
-          <SectionLabel>.Shapes Read receipt — Building block</SectionLabel>
-          <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 12 }}>
-            {ALL_TYPES.map(t => (
-              <button key={t} onClick={() => setPreview(t)} style={{
-                padding: "4px 10px", fontSize: 11, fontWeight: 500, borderRadius: 14,
-                cursor: "pointer", fontFamily: font, transition: "all 0.15s",
-                border:     `1.5px solid ${previewType === t ? accent : border}`,
-                background:  previewType === t ? accent : "transparent",
-                color:       previewType === t ? "#fff" : txtSub,
-              }}>{t}</button>
-            ))}
-          </div>
-          <div style={{
-            background: PREVIEW_BG[mode][previewType],
-            borderRadius: 10, padding: "14px 18px",
-            display: "inline-flex", alignItems: "center",
-            transition: "background 0.2s",
-          }}>
-            <ShapesReadReceipt mode={mode} type={previewType} />
-          </div>
-        </section>
-
-        {/* ── Full grid ── */}
-        <section style={{ marginBottom: 32 }}>
-          <SectionLabel>.Base/Read receipt icon — All types × statuses</SectionLabel>
-          <div style={{ background: panelBg, borderRadius: 12, border: `1px solid ${border}`, overflow: "hidden" }}>
-
-            {/* Column headers */}
-            <div style={{ display: "grid", gridTemplateColumns: "152px repeat(4,1fr)",
-              borderBottom: `1px solid ${border}`, background: d ? "#26282B" : "#F8F9FA" }}>
-              <div style={{ padding: "8px 12px", fontSize: 10, color: txtSub,
-                fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em" }}>Type</div>
-              {ALL_STATUSES.map(s => (
-                <div key={s} style={{ padding: "8px 4px", fontSize: 10, color: txtSub,
-                  fontWeight: 700, textAlign: "center", textTransform: "uppercase",
-                  letterSpacing: "0.04em", borderLeft: `1px solid ${border}` }}>{s}</div>
-              ))}
-            </div>
-
-            {/* Data rows */}
-            {ALL_TYPES.map((type, i) => (
-              <div key={type} style={{
-                display: "grid", gridTemplateColumns: "152px repeat(4,1fr)",
-                borderTop: i === 0 ? "none" : `1px solid ${border}`,
-              }}>
-                <div style={{ padding: "10px 12px", fontSize: 11, color: txtPri,
-                  fontWeight: 500, display: "flex", alignItems: "center", lineHeight: 1.3 }}>
-                  {type}
-                </div>
-                {ALL_STATUSES.map(status => (
-                  <div key={status} style={{
-                    background: PREVIEW_BG[mode][type],
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                    padding: "10px 4px",
-                    borderLeft: `1px solid ${border}`,
-                    transition: "background 0.2s",
-                  }}>
-                    <BaseReadReceiptIcon mode={mode} status={status} type={type} />
-                  </div>
-                ))}
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* ── Building blocks ── */}
-        <section style={{ marginBottom: 24 }}>
-          <SectionLabel>.Double check icon — Building block</SectionLabel>
-          <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-            {[
-              { label: "white",   color: "#ffffff", bg: "#404040" },
-              { label: "gray",    color: "#444746", bg: "#F1F3F4" },
-              { label: "lt gray", color: "#c4c7c5", bg: "#F1F3F4" },
-              { label: "blue",    color: "#0b57d0", bg: "#F1F3F4" },
-              { label: "lt blue", color: "#a8c7fa", bg: "#303134" },
-            ].map(({ label, color, bg }) => (
-              <div key={label} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
-                <div style={{ width: 40, height: 40, background: bg, borderRadius: 8,
-                  display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <DoubleCheckIcon color={color} />
-                </div>
-                <span style={{ fontSize: 9, color: txtSub }}>{label}</span>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <section style={{ marginBottom: 32 }}>
-          <SectionLabel>.Single check icon — Building block (Sent)</SectionLabel>
-          <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-            {[
-              { label: "white",   color: "#ffffff", bg: "#404040" },
-              { label: "gray",    color: "#444746", bg: "#F1F3F4" },
-              { label: "lt gray", color: "#c4c7c5", bg: "#F1F3F4" },
-              { label: "blue",    color: "#0b57d0", bg: "#F1F3F4" },
-            ].map(({ label, color, bg }) => (
-              <div key={label} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
-                <div style={{ width: 40, height: 40, background: bg, borderRadius: 8,
-                  display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <SingleCheckIcon color={color} />
-                </div>
-                <span style={{ fontSize: 9, color: txtSub }}>{label}</span>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <p style={{ fontSize: 11, color: txtSub, textAlign: "center" }}>
-          Figma · 5L3DIB62Y0dFU3uVgLBeVK · node 21063:23829
-        </p>
-      </div>
-    </div>
-  );
-}
+const Component = ReadReceiptIcon;
