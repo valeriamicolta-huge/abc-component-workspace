@@ -321,33 +321,42 @@ function App() {
               return <M3Select key={name} label={name} value={vars[name]||def.default} options={def.options} onChange={v => setVar(name, v)} />;
             })}
           </Section>
-          <Section title="Content" open={sections.content} onToggle={() => togSec("content")}>
-            <div>
-              <label style={{ display: "block", fontSize: 11, fontWeight: 500, color: T.onSurfV, marginBottom: 6 }}>Media image</label>
-              <input ref={imgRef} type="file" accept="image/*" onChange={handleImg} style={{ display: "none" }} />
-              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <div onClick={() => imgRef.current && imgRef.current.click()} style={{ width: 56, height: 56, borderRadius: S.shSm, background: mediaImg ? "none" : T.surfCH, border: `1px dashed ${T.outl}`, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", overflow: "hidden", flexShrink: 0 }}>
-                  {mediaImg ? <img src={mediaImg} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 5V19M5 12H19" stroke={T.outl} strokeWidth="1.5" strokeLinecap="round"/></svg>}
+          {/* Content section — only shown if component declares contentFields */}
+          {selComp.contentFields && selComp.contentFields.length > 0 && (
+            <Section title="Content" open={sections.content} onToggle={() => togSec("content")}>
+              {selComp.contentFields.includes("mediaImage") && (
+                <div>
+                  <label style={{ display: "block", fontSize: 11, fontWeight: 500, color: T.onSurfV, marginBottom: 6 }}>Media image</label>
+                  <input ref={imgRef} type="file" accept="image/*" onChange={handleImg} style={{ display: "none" }} />
+                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                    <div onClick={() => imgRef.current && imgRef.current.click()} style={{ width: 56, height: 56, borderRadius: S.shSm, background: mediaImg ? "none" : T.surfCH, border: `1px dashed ${T.outl}`, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", overflow: "hidden", flexShrink: 0 }}>
+                      {mediaImg ? <img src={mediaImg} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 5V19M5 12H19" stroke={T.outl} strokeWidth="1.5" strokeLinecap="round"/></svg>}
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <button onClick={() => imgRef.current && imgRef.current.click()} style={{ display: "block", fontSize: 13, fontWeight: 500, color: T.pri, background: "none", border: "none", cursor: "pointer", padding: 0, fontFamily: S.f }}>{mediaImg ? "Change" : "Upload"}</button>
+                      {mediaImg && (<div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 4 }}>
+                        <div style={{ width: 16, height: 16, borderRadius: 4, background: dominantColor, border: `1px solid ${T.outlV}` }} />
+                        <span style={{ fontSize: 11, color: T.onSurfV }}>{dominantColor}</span>
+                        <button onClick={() => { setMediaImg(null); setDominantColor("#e0e0e0"); }} style={{ fontSize: 11, color: T.err, background: "none", border: "none", cursor: "pointer", fontFamily: S.f, marginLeft: "auto" }}>Remove</button>
+                      </div>)}
+                    </div>
+                  </div>
                 </div>
-                <div style={{ flex: 1 }}>
-                  <button onClick={() => imgRef.current && imgRef.current.click()} style={{ display: "block", fontSize: 13, fontWeight: 500, color: T.pri, background: "none", border: "none", cursor: "pointer", padding: 0, fontFamily: S.f }}>{mediaImg ? "Change" : "Upload"}</button>
-                  {mediaImg && (<div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 4 }}>
-                    <div style={{ width: 16, height: 16, borderRadius: 4, background: dominantColor, border: `1px solid ${T.outlV}` }} />
-                    <span style={{ fontSize: 11, color: T.onSurfV }}>{dominantColor}</span>
-                    <button onClick={() => { setMediaImg(null); setDominantColor("#e0e0e0"); }} style={{ fontSize: 11, color: T.err, background: "none", border: "none", cursor: "pointer", fontFamily: S.f, marginLeft: "auto" }}>Remove</button>
-                  </div>)}
+              )}
+              {selComp.contentFields.includes("title") && (
+                <div>
+                  <label style={{ display: "block", fontSize: 11, fontWeight: 500, color: T.onSurfV, marginBottom: 4 }}>Title</label>
+                  <textarea value={title} onChange={e => setTitle(e.target.value)} placeholder="Card title goes here" rows={2} style={{ width: "100%", padding: "8px 12px", borderRadius: S.shXs, border: `1px solid ${T.outl}`, background: T.surf, color: T.onSurf, fontFamily: S.f, fontSize: 13, lineHeight: "18px", outline: "none", boxSizing: "border-box", resize: "none" }} />
                 </div>
-              </div>
-            </div>
-            <div>
-              <label style={{ display: "block", fontSize: 11, fontWeight: 500, color: T.onSurfV, marginBottom: 4 }}>Title</label>
-              <textarea value={title} onChange={e => setTitle(e.target.value)} placeholder="Card title goes here" rows={2} style={{ width: "100%", padding: "8px 12px", borderRadius: S.shXs, border: `1px solid ${T.outl}`, background: T.surf, color: T.onSurf, fontFamily: S.f, fontSize: 13, lineHeight: "18px", outline: "none", boxSizing: "border-box", resize: "none" }} />
-            </div>
-            <div>
-              <label style={{ display: "block", fontSize: 11, fontWeight: 500, color: T.onSurfV, marginBottom: 4 }}>Brand</label>
-              <input value={brand} onChange={e => setBrand(e.target.value)} placeholder="brand.com" style={{ width: "100%", height: 40, padding: "0 12px", borderRadius: S.shXs, border: `1px solid ${T.outl}`, background: T.surf, color: T.onSurf, fontFamily: S.f, fontSize: 13, outline: "none", boxSizing: "border-box" }} />
-            </div>
-          </Section>
+              )}
+              {selComp.contentFields.includes("brand") && (
+                <div>
+                  <label style={{ display: "block", fontSize: 11, fontWeight: 500, color: T.onSurfV, marginBottom: 4 }}>Brand</label>
+                  <input value={brand} onChange={e => setBrand(e.target.value)} placeholder="brand.com" style={{ width: "100%", height: 40, padding: "0 12px", borderRadius: S.shXs, border: `1px solid ${T.outl}`, background: T.surf, color: T.onSurf, fontFamily: S.f, fontSize: 13, outline: "none", boxSizing: "border-box" }} />
+                </div>
+              )}
+            </Section>
+          )}
           <Section title="Design Tokens" open={sections.tokens} onToggle={() => togSec("tokens")}>
             {[["Corner radius", selComp.tokens.cornerRadius],["Width", selComp.tokens.width],["Media height", selComp.tokens.mediaHeight],["Padding", selComp.tokens.padding.top+"dp "+selComp.tokens.padding.right+"dp "+selComp.tokens.padding.bottom+"dp "+selComp.tokens.padding.left+"dp"]].map(([l,v]) => (
               <div key={l} style={{ display: "flex", justifyContent: "space-between", fontSize: 12 }}>
