@@ -4,6 +4,7 @@
   "figmaNodeId": "216:58897",
   "figmaFileKey": "ILEhlPBUH6Y4lKwqSnPnSc",
   "description": "A message bubble for voice/audio messages. Displays a play/pause control, a waveform visualization, duration, and optionally an AI-generated transcript that can be viewed, expanded, or hidden.",
+  "contentFields": [],
   "properties": {
     "Service": { "type": "VARIANT", "default": "RCS", "options": ["xMS", "xMS alt", "RCS"] },
     "Chat": { "type": "VARIANT", "default": "Outgoing", "options": ["Incoming", "Outgoing"] },
