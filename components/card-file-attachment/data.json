@@ -1,101 +1,177 @@
 {
-  "id": "link-preview-card",
-  "name": "Link Preview Card",
-  "figmaNodeId": "201:58651",
+  "id": "card-file-attachment",
+  "name": "Card File Attachment",
+  "figmaNodeId": "236:63864",
   "figmaFileKey": "ILEhlPBUH6Y4lKwqSnPnSc",
-  "description": "A card that displays a preview of shared links, videos, or images. Background color is extracted from the media image.",
-  "contentFields": ["mediaImage", "title", "brand"],
-  "propertyVisibility": {
-    "Show Play/Pause": { "when": { "Type": ["Video", "Sent links", "Received links"] } },
-    "Category":        { "when": { "Type": ["Video", "Image"] } },
-    "Read receipt Mode":   { "when": { "Type": ["Sent links", "Video", "Image"], "Styles": ["RCS"] } },
-    "Read receipt Status": { "when": { "Type": ["Sent links", "Video", "Image"], "Styles": ["RCS"] } }
-  },
+  "description": "A compact rich card used in RCS/ABC messaging to represent file, audio, image, video, or contact attachments. Supports download states, loading progress, error/retry flows, and a draft removal state.",
   "properties": {
-    "Type": { "type": "VARIANT", "default": "Received links", "options": ["Received links", "Sent links", "Video", "Image"] },
-    "Styles": { "type": "VARIANT", "default": "RCS", "options": ["XMS", "RCS"] },
-    "Category": { "type": "VARIANT", "default": "Incoming", "options": ["Incoming", "Outgoing"] },
-    "Show Play/Pause": { "type": "BOOLEAN", "default": true },
-    "Read receipt Mode": { "type": "VARIANT", "default": "Light", "options": ["Light", "Dark"] },
-    "Read receipt Status": { "type": "VARIANT", "default": "Read", "options": ["Sending", "Sent", "Delivered", "Read"] }
+    "Type": {
+      "type": "VARIANT",
+      "default": "File",
+      "options": ["Audio", "Contact", "File", "Image", "Video", "Loading", "File receipt icon", "File draft", "Photos card"]
+    },
+    "State": {
+      "type": "VARIANT",
+      "default": "Generic",
+      "options": ["Generic", "Generic and label", "Download", "Download expires", "Retry"]
+    },
+    "Stroke": {
+      "type": "VARIANT",
+      "default": "Off",
+      "options": ["Off", "On"]
+    },
+    "Metadata": {
+      "type": "BOOLEAN",
+      "default": false
+    }
   },
   "tokens": {
     "cornerRadius": "20dp (corner-large-increased)",
-    "width": "330dp",
-    "mediaHeight": "187dp",
-    "padding": { "top": 14, "right": 32, "bottom": 20, "left": 16 },
+    "width": "fit-content (varies ~162–210dp depending on Type)",
+    "height": "72dp (card body) + optional 16dp metadata row",
+    "padding": { "top": 18, "right": 16, "bottom": 18, "left": 16 },
+    "iconBgSize": "36dp",
+    "iconBgRadius": "12dp (corner-medium)",
+    "iconSize": "20dp",
+    "progressIndicatorSize": "36dp",
     "typography": {
-      "title": { "token": "Title Medium", "spec": "Google Sans Text Medium, 16/24, tracking 0" },
-      "brand": { "token": "Body Small", "spec": "Google Sans Text Regular, 12/16, tracking 0.1" },
-      "link": { "token": "Body Large", "spec": "Google Sans Text Regular, 16/24, tracking 0" }
+      "headline": { "token": "Label Large", "spec": "Google Sans Flex Medium, 14sp, tracking 0, line-height 20sp" },
+      "secondary": { "token": "Body Small", "spec": "Google Sans Text Regular, 12sp, tracking 0.1sp, line-height 16sp" },
+      "timestamp": { "token": "Body Small", "spec": "Google Sans Text Regular, 12sp, tracking 0.1sp, line-height 16sp" }
     }
   },
   "colors": {
     "light": [
-      ["Title (dark bg)", "White", "#FFFFFF"],
-      ["Title (light bg)", "On Surface", "#1F1F1F"],
-      ["Brand (dark bg)", "White 70%", "rgba(255,255,255,0.7)"],
-      ["Brand (light bg)", "On Surface Variant", "#444746"],
-      ["Link area (Sent RCS)", "Primary", "#0B57D0"],
-      ["Link area (Sent XMS)", "Primary Container", "#D3E3FD"],
-      ["Link area (Received)", "Surface Container", "#F0F4F9"]
+      ["Card surface", "Surface Container", "#f0f4f9"],
+      ["Card border (Stroke=On)", "Outline Variant", "#c4c7c5"],
+      ["Icon background", "Secondary", "#00639b"],
+      ["Icon foreground", "On Secondary", "#ffffff"],
+      ["Headline text", "On Surface", "#1f1f1f"],
+      ["Secondary text / timestamp", "On Surface Variant", "#444746"],
+      ["Loading skeleton lines", "Surface Container Highest", "#dde3ea"],
+      ["Cancel/close icon (Loading)", "Secondary", "#00639b"],
+      ["Contact name (error state)", "On Error Container", "#8c1d18"],
+      ["Photos card surface bg", "Surface", "#ffffff"]
     ],
     "dark": [
-      ["Title (dark bg)", "White", "#FFFFFF"],
-      ["Title (light bg)", "On Surface", "#E3E3E3"],
-      ["Brand (dark bg)", "White 70%", "rgba(255,255,255,0.7)"],
-      ["Brand (light bg)", "On Surface Variant", "#C4C7C5"],
-      ["Link area (Sent RCS)", "Primary", "#A8C7FA"],
-      ["Link area (Sent XMS)", "Primary Container", "#0842A0"],
-      ["Link area (Received)", "Surface Container", "#1E1F20"]
+      ["Card surface", "Surface Container", "#1e1f20"],
+      ["Card border (Stroke=On)", "Outline Variant", "#444746"],
+      ["Icon background", "Secondary", "#7fcfff"],
+      ["Icon foreground", "On Secondary", "#003553"],
+      ["Headline text", "On Surface", "#e3e3e3"],
+      ["Secondary text / timestamp", "On Surface Variant", "#c4c7c5"],
+      ["Loading skeleton lines", "Surface Container Highest", "#333537"],
+      ["Cancel/close icon (Loading)", "Secondary", "#7fcfff"],
+      ["Contact name (error state)", "On Error Container", "#f9dedc"],
+      ["Photos card surface bg", "Surface", "#131314"]
     ]
   },
   "variants": [
-    { "name": "Image", "desc": "Media thumbnail, top corners 20dp. Read receipt (RCS only). No play button." },
-    { "name": "Video", "desc": "Media with play overlay, top corners 20dp. Play/Pause centered. Read receipt (RCS only)." },
-    { "name": "Sent Links", "desc": "Link text area on top, then media with play overlay. Link bg: Primary (RCS) or Primary Container (XMS). Bottom corners 12dp." },
-    { "name": "Received Links", "desc": "Link text area on top, then media. Link bg: Surface Container. No read receipt." }
+    {
+      "name": "File / Generic / Stroke Off",
+      "desc": "Default file card. Shows drive_pdf icon in Secondary-colored 36dp rounded square, filename as headline, size+type as secondary text. No border."
+    },
+    {
+      "name": "File / Generic / Stroke On",
+      "desc": "Same as above but adds Outline Variant border around the card."
+    },
+    {
+      "name": "File / Download",
+      "desc": "Replaces icon with a 'download' Material Symbol. Signals file is available to download."
+    },
+    {
+      "name": "File / Download expires",
+      "desc": "Replaces icon with a time-sensitive download symbol. Signals the download link will expire soon."
+    },
+    {
+      "name": "File / Retry",
+      "desc": "Replaces icon with an error/retry symbol. Signals the download failed and user can retry."
+    },
+    {
+      "name": "File / Generic and label",
+      "desc": "Generic state with the secondary (label) text row visible."
+    },
+    {
+      "name": "Audio, Image, Video / (all states)",
+      "desc": "Same structure as File variants, but uses type-specific icons (audio, image, video Material Symbols) and type-specific error copy (e.g. 'Can't load audio')."
+    },
+    {
+      "name": "Contact",
+      "desc": "Replaces file icon with a 56dp avatar image. Headline shows contact name (uses On Error Container color in non-stroke state, On Surface in stroke state). Secondary shows 'View contact'."
+    },
+    {
+      "name": "Loading",
+      "desc": "Replaces icon area with a 36dp circular determinate progress indicator (wave style, 50% progress, 4dp thickness) and a 'close' cancel symbol in Secondary color. Content area shows two skeleton placeholder lines (Surface Container Highest)."
+    },
+    {
+      "name": "File receipt icon",
+      "desc": "Standard file card with a 16dp read-receipt double-check icon overlaid at bottom-right (no stroke) or at a fixed offset (stroke variant)."
+    },
+    {
+      "name": "File draft",
+      "desc": "File card in sending/draft state with a remove badge (×) at the top-right corner for pre-send deletion."
+    },
+    {
+      "name": "Photos card",
+      "desc": "Replaces the icon with a 56dp video thumbnail image (rounded 8dp). Headline shows media count (e.g. '1 video'). Secondary shows upload size. Google Photos logo in a white circular badge on the right."
+    }
   ],
   "behavior": {
-    "interactive": "Tap opens URL. Long press opens context menu.",
-    "dynamic": "Background extracted from dominant image color. Text adapts to bg luminance.",
-    "readReceipt": "Visible when Styles=RCS AND Category=Outgoing."
+    "interactive": "Tap on the card body triggers the appropriate action: open file, play audio/video, view contact, or initiate download. The 'close' icon in Loading state cancels the upload/download. The remove badge (×) in File draft state removes the attachment before sending.",
+    "dynamic": "Icon and copy change based on Type and State combination. Secondary text row visibility is controlled by the Metadata and Label boolean properties. Contact name color differs between stroke and no-stroke variants (On Error Container vs On Surface).",
+    "readReceipt": "Visible only in the 'File receipt icon' variant. Rendered as a 16dp read-receipt icon at bottom-right of the card."
   },
   "states": [
-    ["Default", "All content visible per variant."],
-    ["Pressed", "Background dims (opacity: 0.9)."],
-    ["Loading", "Shimmer placeholder in media area."]
+    ["Default / Generic", "Card shows file icon, filename, and size/type label."],
+    ["Download", "Download arrow icon shown; user can initiate download."],
+    ["Download expires", "Time-sensitive download icon; indicates link expiry."],
+    ["Retry", "Error icon shown; user can retry failed download."],
+    ["Loading", "Circular progress + cancel icon; skeleton placeholder text."],
+    ["File draft", "Card with remove (×) badge; pre-send attachment state."],
+    ["Generic and label", "Generic state with secondary label text visible."]
   ],
   "darkMode": {
     "tokens": [
-      ["Primary", "#0B57D0", "#A8C7FA"],
-      ["On Primary", "#FFFFFF", "#062E6F"],
-      ["Primary Container", "#D3E3FD", "#0842A0"],
-      ["Surface Container", "#F0F4F9", "#1E1F20"],
-      ["On Surface", "#1F1F1F", "#E3E3E3"],
-      ["On Surface Variant", "#444746", "#C4C7C5"]
+      ["Surface Container",            "#f0f4f9", "#1e1f20"],
+      ["Surface Container Highest",    "#dde3ea", "#333537"],
+      ["Outline Variant (border)",     "#c4c7c5", "#444746"],
+      ["Secondary (icon bg)",          "#00639b", "#7fcfff"],
+      ["On Secondary (icon fg)",       "#ffffff", "#003553"],
+      ["On Surface (headline)",        "#1f1f1f", "#e3e3e3"],
+      ["On Surface Variant (2nd txt)", "#444746", "#c4c7c5"],
+      ["On Error Container (contact)", "#8c1d18", "#f9dedc"],
+      ["Surface (Photos badge bg)",    "#ffffff", "#131314"]
     ],
-    "notes": "Default bg (no image): #E0E0E0 light / #3C3C3C dark."
+    "notes": "Dark values resolved from Material GenUX Kit v0.4.1 (gm3-color-tokens-full.css). The secondary palette shifts to a lighter blue (#7fcfff) in dark mode per M3 tonal palette conventions. On-error-container lightens to a soft pink (#f9dedc) in dark mode. Surface container darkens to near-black (#1e1f20)."
   },
   "motion": [
-    ["Press feedback", "100ms", "cubic-bezier(0.2, 0, 0, 1)"],
-    ["Image fade-in", "200ms", "cubic-bezier(0.2, 0, 0, 1)"]
+    ["Loading → Default", "Not specified in Figma", "Not specified in Figma"],
+    ["Tap feedback (press)", "duration-short3 = 150ms", "easing-standard"],
+    ["State change (icon swap)", "duration-medium1 = 250ms", "easing-emphasized"]
   ],
   "writing": [
-    ["Title", "Max 2 lines, ellipsis, title case."],
-    ["Brand", "Single line, domain format."],
-    ["Link", "Raw URL, max 3 lines, word-break."]
+    ["Headline (File)", "Use the actual filename including extension, e.g. 'file_name.pdf'. Keep concise."],
+    ["Secondary (File)", "Format: '{size} ･ {type}', e.g. '13KB ･ File'."],
+    ["Headline (Error states)", "Describe what failed, e.g. 'Can't load audio', 'Can't load file'."],
+    ["Contact name", "Display the full contact name as stored."],
+    ["Photos card headline", "Use media count format: '1 video', '3 photos'."],
+    ["Photos card secondary", "Use upload size format: '32 MB upload'."]
   ],
   "a11y": [
-    ["Role", "article or link"],
-    ["Label", "aria-label: {Title} from {Brand}"],
-    ["Contrast", "WCAG 2.1 AA (4.5:1) against bg"],
-    ["Keyboard", "Tab to focus, Enter to activate"]
+    ["Icon", "Icon area should have a content description reflecting the file type and state (e.g. 'Audio file, tap to download')."],
+    ["Cancel button (Loading)", "Close icon should be labelled 'Cancel upload' or 'Cancel download'."],
+    ["Remove badge", "Remove (×) badge should be labelled 'Remove attachment'."],
+    ["Read receipt", "Read receipt icon should have an accessible label, e.g. 'Read'."],
+    ["Contact avatar", "Avatar image should carry the contact name as its content description."]
   ],
   "assets": [
-    ["Play button", "Overlay", "play_arrow Material Symbol"],
-    ["Brand logo", "Slot", "16x16 favicon"],
-    ["Read receipt", "Icon", "Double-check (RCS outgoing)"],
-    ["Media", "Slot", "Image or video thumbnail"]
+    ["drive_pdf", "Material Symbol", "PDF/file type icon rendered via Google Symbols font"],
+    ["audio / image / video icons", "Material Symbol", "Type-specific icons from Google Symbols font"],
+    ["close", "Material Symbol", "Cancel/remove icon from Google Symbols font"],
+    ["download", "Material Symbol", "Download action icon from Google Symbols font"],
+    ["Read receipt icon", "Composite SVG", "Double-check mark overlay for read status"],
+    ["Circular progress indicator", "Component", ".circular-determinate ABC — wave style, 4dp, 50% progress"],
+    ["abc/logo_photos_48dp", "Component", "Google Photos four-color logo badge used in Photos card variant"],
+    ["Contact avatar", "Image", "56dp user avatar image for Contact variant"]
   ]
 }
