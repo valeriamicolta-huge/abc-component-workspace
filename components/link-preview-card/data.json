@@ -13,19 +13,18 @@
   "propertyVisibility": {
     "Show Play/Pause": {
       "when": {
-        "Type": [
-          "Video",
-          "Sent links",
-          "Received links"
-        ]
+        "Type": ["Video", "Sent links", "Received links"]
       }
     },
     "Category": {
       "when": {
-        "Type": [
-          "Video",
-          "Image"
-        ]
+        "Type": ["Video", "Image"]
+      }
+    },
+    "Read receipt Status": {
+      "when": {
+        "Type": ["Sent links", "Video", "Image"],
+        "Styles": ["RCS"]
       }
     }
   },
