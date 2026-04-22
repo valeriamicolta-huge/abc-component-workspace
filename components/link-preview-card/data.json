@@ -9,7 +9,9 @@
     "Type": { "type": "VARIANT", "default": "Received links", "options": ["Received links", "Sent links", "Video", "Image"] },
     "Styles": { "type": "VARIANT", "default": "RCS", "options": ["XMS", "RCS"] },
     "Category": { "type": "VARIANT", "default": "Incoming", "options": ["Incoming", "Outgoing"] },
-    "Show Play/Pause": { "type": "BOOLEAN", "default": true }
+    "Show Play/Pause": { "type": "BOOLEAN", "default": true },
+    "Read receipt Mode": { "type": "VARIANT", "default": "Light", "options": ["Light", "Dark"] },
+    "Read receipt Status": { "type": "VARIANT", "default": "Read", "options": ["Sending", "Sent", "Delivered", "Read"] }
   },
   "tokens": {
     "cornerRadius": "20dp (corner-large-increased)",
