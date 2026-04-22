@@ -164,9 +164,14 @@ function Renderer(props) {
   if (type === "Contact") {
     return wrap(
       React.createElement("div", { style: cardStyle() },
-        React.createElement("div", { style: { width: 36, height: 36, borderRadius: "50%", background: dark ? "#1a3a5c" : "#d4e4f7", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 } },
-          React.createElement("span", { style: { fontSize: 14, fontWeight: 500, color: tk.sec, fontFamily: "'Google Sans',sans-serif" } }, "DH")
-        ),
+        /* Avatar shared component — _shared/avatar/component.jsx */
+        typeof Avatar !== "undefined"
+          ? React.createElement("div", { style: { width: 36, height: 36, flexShrink: 0 } },
+              React.createElement(Avatar, { type: "Single Avatar", dark: dark })
+            )
+          : React.createElement("div", { style: { width: 36, height: 36, borderRadius: "50%", background: dark ? "#1a3a5c" : "#d4e4f7", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 } },
+              React.createElement("span", { style: { fontSize: 14, fontWeight: 500, color: tk.sec, fontFamily: "'Google Sans',sans-serif" } }, "DH")
+            ),
         React.createElement("div", { style: { display: "flex", flexDirection: "column" } },
           React.createElement("p", { style: Object.assign({}, titleStyle, { color: stroke ? tk.onSurf : tk.errName }) }, "Danielle Holmes"),
           React.createElement("p", { style: subtitleStyle }, "View contact")
@@ -206,14 +211,14 @@ function Renderer(props) {
     );
   }
 
-  /* File receipt icon — card uses normal tokens, only receipt icon mode is inverted */
+  /* File receipt icon — always inverted vs workspace */
   if (type === "File receipt icon") {
-    return wrap(
-      React.createElement("div", { style: cardStyle({ alignItems: "flex-end" }) },
-        React.createElement(FileIconSlot, { tk: tk }),
+    return React.createElement("div", { style: { display: "flex", alignItems: "flex-start", borderRadius: 20 } },
+      React.createElement("div", { style: rCardStyle({ alignItems: "flex-end" }) },
+        React.createElement(FileIconSlot, { tk: rTk }),
         React.createElement("div", { style: { display: "flex", flexDirection: "column" } },
-          React.createElement("p", { style: titleStyle }, "file_name.pdf"),
-          React.createElement("p", { style: subtitleStyle }, "13KB · File")
+          React.createElement("p", { style: rTitleStyle }, "file_name.pdf"),
+          React.createElement("p", { style: rSubtitleStyle }, "13KB · File")
         ),
         typeof ReadReceiptIcon !== "undefined"
           ? React.createElement("div", { style: { position: "absolute", bottom: 8, right: 8, width: 16, height: 16 } },
