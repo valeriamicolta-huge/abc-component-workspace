@@ -206,14 +206,14 @@ function Renderer(props) {
     );
   }
 
-  /* File receipt icon — always inverted vs workspace */
+  /* File receipt icon — card uses normal tokens, only receipt icon mode is inverted */
   if (type === "File receipt icon") {
-    return React.createElement("div", { style: { display: "flex", alignItems: "flex-start", borderRadius: 20 } },
-      React.createElement("div", { style: rCardStyle({ alignItems: "flex-end" }) },
-        React.createElement(FileIconSlot, { tk: rTk }),
+    return wrap(
+      React.createElement("div", { style: cardStyle({ alignItems: "flex-end" }) },
+        React.createElement(FileIconSlot, { tk: tk }),
         React.createElement("div", { style: { display: "flex", flexDirection: "column" } },
-          React.createElement("p", { style: rTitleStyle }, "file_name.pdf"),
-          React.createElement("p", { style: rSubtitleStyle }, "13KB · File")
+          React.createElement("p", { style: titleStyle }, "file_name.pdf"),
+          React.createElement("p", { style: subtitleStyle }, "13KB · File")
         ),
         typeof ReadReceiptIcon !== "undefined"
           ? React.createElement("div", { style: { position: "absolute", bottom: 8, right: 8, width: 16, height: 16 } },
