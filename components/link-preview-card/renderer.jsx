@@ -3,17 +3,24 @@
    Must end with: const Renderer = LinkPreviewCard; */
 
 /* ─── Read Receipt (Type = Link preview card) ──────────────────────
-   From Figma node 16999:35495 screenshot:
-   - ALL circles are GREY (never blue)
-   - Light mode: medium grey circle (#8e8e8e), white/faint check marks
-   - Dark mode: dark grey circle (#3a3a3c), lighter faint check marks
-   - The only blue that appears in the full sheet is for "On bubble" type
-     which is a different type — Link preview card type is always grey
-   - Read status: solid white checks on grey circle
-   - Sending: 3 white dots
-   - Sent: 1 faint white check
-   - Delivered: 2 faint white checks
-   - Read: 2 solid white checks (slightly brighter than delivered)
+   Extracted from individual node screenshots + variable defs:
+
+   Circle background = inverse-on-surface token:
+     Light: #f2f2f2 (near white)
+     Dark:  #313131 (dark grey)
+
+   Circle border (outline stroke):
+     Light: ~#c4c7c5 (on-surface-variant at low opacity)
+     Dark:  ~#5c5f5e
+
+   Check/dot color = on-surface-variant token:
+     Light: #444746 (dark grey)
+     Dark:  #c4c7c5 (light grey)
+
+   Read:      double checks, solid color
+   Delivered: double checks, 50% opacity
+   Sent:      single check, 50% opacity
+   Sending:   three dots, 50% opacity
 */
 function ReadReceipt({ mode, status }) {
   const isLight     = mode !== "Dark";
@@ -22,75 +29,71 @@ function ReadReceipt({ mode, status }) {
   const isDelivered = status === "Delivered";
   const isRead      = status === "Read";
 
-  const circleFill = isLight ? "#8e8e93" : "#3a3a3c";
-  const faintCheck = isLight ? "rgba(255,255,255,0.5)" : "rgba(255,255,255,0.35)";
-  const solidCheck = isLight ? "rgba(255,255,255,0.95)" : "rgba(255,255,255,0.8)";
-  const dotColor   = isLight ? "rgba(255,255,255,0.55)" : "rgba(255,255,255,0.35)";
+  /* M3 tokens: inverse-on-surface for circle bg, on-surface-variant for marks */
+  const circleBg     = isLight ? "#f2f2f2" : "#313131";
+  const circleBorder = isLight ? "#c4c7c5" : "#5c5f5e";
+  const markSolid    = isLight ? "#444746" : "#c4c7c5";
+  const markFaint    = isLight ? "rgba(68,71,70,0.45)" : "rgba(196,199,197,0.45)";
 
   return (
     <svg width="20" height="20" viewBox="0 0 20 20" fill="none" style={{ display: "block" }}>
-      <circle cx="10" cy="10" r="9.5" fill={circleFill}/>
+      {/* Circle with border */}
+      <circle cx="10" cy="10" r="9" fill={circleBg} stroke={circleBorder} strokeWidth="1"/>
 
       {/* Sending — 3 dots */}
       {isSending && <>
-        <circle cx="6"  cy="10" r="1.3" fill={dotColor}/>
-        <circle cx="10" cy="10" r="1.3" fill={dotColor}/>
-        <circle cx="14" cy="10" r="1.3" fill={dotColor}/>
+        <circle cx="6"  cy="10" r="1.3" fill={markFaint}/>
+        <circle cx="10" cy="10" r="1.3" fill={markFaint}/>
+        <circle cx="14" cy="10" r="1.3" fill={markFaint}/>
       </>}
 
-      {/* Sent — single faint check (left-aligned) */}
+      {/* Sent — single faint check */}
       {isSent && (
         <path d="M6 10.5L8.5 13L13 7.5"
-          stroke={faintCheck} strokeWidth="1.5"
+          stroke={markFaint} strokeWidth="1.6"
           strokeLinecap="round" strokeLinejoin="round" fill="none"/>
       )}
 
       {/* Delivered — double faint checks */}
       {isDelivered && <>
         <path d="M4.5 10.5L7 13L11.5 7.5"
-          stroke={faintCheck} strokeWidth="1.4"
+          stroke={markFaint} strokeWidth="1.5"
           strokeLinecap="round" strokeLinejoin="round" fill="none"/>
         <path d="M8 10.5L10.5 13L15 7.5"
-          stroke={faintCheck} strokeWidth="1.4"
+          stroke={markFaint} strokeWidth="1.5"
           strokeLinecap="round" strokeLinejoin="round" fill="none"/>
       </>}
 
-      {/* Read — double solid white checks */}
+      {/* Read — double solid checks */}
       {isRead && <>
         <path d="M4.5 10.5L7 13L11.5 7.5"
-          stroke={solidCheck} strokeWidth="1.5"
+          stroke={markSolid} strokeWidth="1.6"
           strokeLinecap="round" strokeLinejoin="round" fill="none"/>
         <path d="M8 10.5L10.5 13L15 7.5"
-          stroke={solidCheck} strokeWidth="1.5"
+          stroke={markSolid} strokeWidth="1.6"
           strokeLinecap="round" strokeLinejoin="round" fill="none"/>
       </>}
     </svg>
   );
 }
 
-/* ─── Play / Pause button (60×60dp) ─── */
+/* ─── Play/Pause button (60×60dp) — click to toggle ─── */
 function PlayPauseButton({ isPlaying, onClick }) {
   return (
-    <div
-      onClick={onClick}
-      style={{
-        width: 60, height: 60, borderRadius: 30,
-        background: "rgba(0,0,0,0.45)",
-        backdropFilter: "blur(6px)",
-        WebkitBackdropFilter: "blur(6px)",
-        display: "flex", alignItems: "center", justifyContent: "center",
-        cursor: "pointer",
-        flexShrink: 0,
-      }}
-    >
+    <div onClick={onClick} style={{
+      width: 60, height: 60, borderRadius: 30,
+      background: "rgba(0,0,0,0.45)",
+      backdropFilter: "blur(6px)",
+      WebkitBackdropFilter: "blur(6px)",
+      display: "flex", alignItems: "center", justifyContent: "center",
+      cursor: "pointer", flexShrink: 0,
+    }}>
       {isPlaying ? (
-        /* Pause icon */
         <svg width="28" height="28" viewBox="0 0 24 24" fill="#fff">
           <rect x="6" y="5" width="4" height="14" rx="1.5"/>
           <rect x="14" y="5" width="4" height="14" rx="1.5"/>
         </svg>
       ) : (
-        /* Play icon */
         <svg width="28" height="28" viewBox="0 0 24 24" fill="#fff">
           <path d="M8 5.14v13.72a1 1 0 001.53.85l10.36-6.86a1 1 0 000-1.7L9.53 4.29A1 1 0 008 5.14z"/>
         </svg>
@@ -118,24 +121,19 @@ function BrandIcon({ isYouTube, color }) {
   );
 }
 
-/* ─── Figma placeholder (.Base/Media Link preview card) ───
-   From screenshot: lavender (#ede7f6) background, centered filled purple
-   rounded rectangle with white sun circle + white mountain silhouette.
-   Encoded as inline SVG data URL so it renders as a proper <img>. */
+/* ─── .Base/Media Link preview card placeholder ───
+   From Figma: lavender #ede7f6 bg, centered filled purple rounded rect
+   with white circle (sun) top-left and white mountain fill at bottom.
+   Rendered as inline SVG data URL so it's a proper <img> with object-cover. */
 function MediaPlaceholder() {
-  const svg = [
-    '<svg xmlns="http://www.w3.org/2000/svg" width="330" height="187" viewBox="0 0 330 187">',
-    '<rect width="330" height="187" fill="#ede7f6"/>',
-    '<g transform="translate(139,69)">',
-    /* Outer purple rounded rect */
-    '<rect x="0" y="0" width="52" height="38" rx="5" fill="#6d28d9"/>',
-    /* White sun */
-    '<circle cx="14" cy="11" r="5.5" fill="#ede7f6"/>',
-    /* White mountain */
-    '<path d="M0 32 L16 16 L24 23 L33 12 L52 32 L52 38 L0 38 Z" fill="#ede7f6"/>',
-    '</g>',
-    '</svg>'
-  ].join('');
+  const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="330" height="187" viewBox="0 0 330 187">'
+    + '<rect width="330" height="187" fill="#ede7f6"/>'
+    + '<g transform="translate(139,69)">'
+    + '<rect x="0" y="0" width="52" height="38" rx="5" fill="#6d28d9"/>'
+    + '<circle cx="14" cy="11" r="5.5" fill="#ede7f6"/>'
+    + '<path d="M0 32 L16 16 L24 23 L33 12 L52 32 L52 38 L0 38 Z" fill="#ede7f6"/>'
+    + '</g>'
+    + '</svg>';
   return (
     <img
       src={"data:image/svg+xml," + encodeURIComponent(svg)}
@@ -155,7 +153,6 @@ function LinkPreviewCard(props) {
   const receiptStatus = props["Read receipt Status"] || "Read";
   const { mediaImg, dominantColor, title, brand, dark } = props;
 
-  /* Dynamic play/pause state — toggled by clicking the button */
   const [isPlaying, setIsPlaying] = useState(false);
 
   const T = dark ? THEMES.dark : THEMES.light;
@@ -168,34 +165,27 @@ function LinkPreviewCard(props) {
   const isRCS      = styles === "RCS";
   const isOut      = category === "Outgoing";
 
-  /* ── Visibility rules ──
-     Play button:
-       - Video: always show (regardless of showPlayProp)
-       - Sent links + Received links: show only if showPlayProp = true
-     Read receipt:
-       - Sent links + RCS only
-       - Image + RCS + Outgoing
-       - Video + RCS + Outgoing
-  */
-  const showPlay = isVideo
-    ? true
-    : (isLink && showPlayProp);
+  /* Play button:
+     - Video: always show, ignores the Show Play/Pause toggle
+     - Sent links + Received links: show only if toggle is on */
+  const showPlay = isVideo ? true : (isLink && showPlayProp);
 
+  /* Read receipt only on: Sent links+RCS, Image+RCS+Outgoing, Video+RCS+Outgoing */
   const showReadReceipt =
     (isSentLink && isRCS) ||
     (isImage    && isRCS && isOut) ||
     (isVideo    && isRCS && isOut);
 
-  /* Card background — dominant color, not affected by dark toggle */
+  /* Card background — dominant color from image, unaffected by dark toggle */
   const hasDominant  = mediaImg && dominantColor && dominantColor !== "#e0e0e0";
   const cardBg       = hasDominant ? dominantColor : (dark ? "#2c2c2c" : "#e8eaed");
   const isDarkCardBg = lum(cardBg) < 0.5;
 
-  /* Info area text responds ONLY to card bg luminance */
+  /* Info area text responds ONLY to card bg luminance, never to dark mode */
   const titleColor = isDarkCardBg ? "#ffffff" : "#1f1f1f";
   const brandColor = isDarkCardBg ? "rgba(255,255,255,0.7)" : "#444746";
 
-  /* Link area bg — uses workspace theme (separate surface) */
+  /* Link area uses workspace theme — it's a separate surface above the image */
   let linkBg, linkText;
   if (isSentLink && isRCS) { linkBg = T.pri;  linkText = dark ? T.onPri : "#ffffff"; }
   else if (isSentLink)     { linkBg = T.priC; linkText = T.onPriC; }
@@ -213,7 +203,6 @@ function LinkPreviewCard(props) {
   return (
     <div style={{ width: 330, borderRadius: 20, overflow: "hidden", background: cardBg, fontFamily: S.f }}>
 
-      {/* Link text area */}
       {isLink && (
         <div style={{ padding: "12px 16px", background: linkBg }}>
           <p style={{
@@ -227,7 +216,6 @@ function LinkPreviewCard(props) {
         </div>
       )}
 
-      {/* Media area */}
       <div style={{
         width: 330, height: 187, position: "relative",
         overflow: "hidden", borderRadius: mediaRadius, flexShrink: 0,
@@ -236,15 +224,16 @@ function LinkPreviewCard(props) {
           ? <img src={mediaImg} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}/>
           : <MediaPlaceholder />
         }
-
         {showPlay && (
           <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)" }}>
-            <PlayPauseButton isPlaying={isPlaying} onClick={e => { e.stopPropagation(); setIsPlaying(!isPlaying); }} />
+            <PlayPauseButton
+              isPlaying={isPlaying}
+              onClick={e => { e.stopPropagation(); setIsPlaying(p => !p); }}
+            />
           </div>
         )}
       </div>
 
-      {/* Info area — responds to card bg luminance, not dark mode */}
       <div style={{ padding: "14px 16px 16px", position: "relative" }}>
         <p style={{
           fontSize: 16, fontWeight: 500, lineHeight: "24px",
