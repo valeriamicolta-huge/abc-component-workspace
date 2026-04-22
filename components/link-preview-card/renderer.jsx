@@ -1,81 +1,7 @@
 /* Link Preview Card renderer
    Globals: React, useState, useRef, useEffect, THEMES, S, lum
+   Shared component globals: ReadReceiptIcon (from components/_shared/read-receipt-icon/)
    Must end with: const Renderer = LinkPreviewCard; */
-
-/* ─── Read Receipt (Type = Link preview card) ──────────────────────
-   Extracted from individual node screenshots + variable defs:
-
-   Circle background = inverse-on-surface token:
-     Light: #f2f2f2 (near white)
-     Dark:  #313131 (dark grey)
-
-   Circle border (outline stroke):
-     Light: ~#c4c7c5 (on-surface-variant at low opacity)
-     Dark:  ~#5c5f5e
-
-   Check/dot color = on-surface-variant token:
-     Light: #444746 (dark grey)
-     Dark:  #c4c7c5 (light grey)
-
-   Read:      double checks, solid color
-   Delivered: double checks, 50% opacity
-   Sent:      single check, 50% opacity
-   Sending:   three dots, 50% opacity
-*/
-function ReadReceipt({ mode, status }) {
-  const isLight     = mode !== "Dark";
-  const isSending   = status === "Sending";
-  const isSent      = status === "Sent";
-  const isDelivered = status === "Delivered";
-  const isRead      = status === "Read";
-
-  /* M3 tokens: inverse-on-surface for circle bg, on-surface-variant for marks */
-  const circleBg     = isLight ? "#f2f2f2" : "#313131";
-  const circleBorder = isLight ? "#c4c7c5" : "#5c5f5e";
-  const markSolid    = isLight ? "#444746" : "#c4c7c5";
-  const markFaint    = isLight ? "rgba(68,71,70,0.45)" : "rgba(196,199,197,0.45)";
-
-  return (
-    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" style={{ display: "block" }}>
-      {/* Circle with border */}
-      <circle cx="10" cy="10" r="9" fill={circleBg} stroke={circleBorder} strokeWidth="1"/>
-
-      {/* Sending — 3 dots */}
-      {isSending && <>
-        <circle cx="6"  cy="10" r="1.3" fill={markFaint}/>
-        <circle cx="10" cy="10" r="1.3" fill={markFaint}/>
-        <circle cx="14" cy="10" r="1.3" fill={markFaint}/>
-      </>}
-
-      {/* Sent — single faint check */}
-      {isSent && (
-        <path d="M6 10.5L8.5 13L13 7.5"
-          stroke={markFaint} strokeWidth="1.6"
-          strokeLinecap="round" strokeLinejoin="round" fill="none"/>
-      )}
-
-      {/* Delivered — double faint checks */}
-      {isDelivered && <>
-        <path d="M4.5 10.5L7 13L11.5 7.5"
-          stroke={markFaint} strokeWidth="1.5"
-          strokeLinecap="round" strokeLinejoin="round" fill="none"/>
-        <path d="M8 10.5L10.5 13L15 7.5"
-          stroke={markFaint} strokeWidth="1.5"
-          strokeLinecap="round" strokeLinejoin="round" fill="none"/>
-      </>}
-
-      {/* Read — double solid checks */}
-      {isRead && <>
-        <path d="M4.5 10.5L7 13L11.5 7.5"
-          stroke={markSolid} strokeWidth="1.6"
-          strokeLinecap="round" strokeLinejoin="round" fill="none"/>
-        <path d="M8 10.5L10.5 13L15 7.5"
-          stroke={markSolid} strokeWidth="1.6"
-          strokeLinecap="round" strokeLinejoin="round" fill="none"/>
-      </>}
-    </svg>
-  );
-}
 
 /* ─── Play/Pause button (60×60dp) — click to toggle ─── */
 function PlayPauseButton({ isPlaying, onClick }) {
@@ -121,10 +47,7 @@ function BrandIcon({ isYouTube, color }) {
   );
 }
 
-/* ─── .Base/Media Link preview card placeholder ───
-   From Figma: lavender #ede7f6 bg, centered filled purple rounded rect
-   with white circle (sun) top-left and white mountain fill at bottom.
-   Rendered as inline SVG data URL so it's a proper <img> with object-cover. */
+/* ─── .Base/Media Link preview card placeholder ─── */
 function MediaPlaceholder() {
   const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="330" height="187" viewBox="0 0 330 187">'
     + '<rect width="330" height="187" fill="#ede7f6"/>'
@@ -149,7 +72,6 @@ function LinkPreviewCard(props) {
   const styles        = props.Styles        || "RCS";
   const category      = props.Category      || "Incoming";
   const showPlayProp  = props["Show Play/Pause"] !== false;
-  const receiptMode   = props["Read receipt Mode"]   || "Light";
   const receiptStatus = props["Read receipt Status"] || "Read";
   const { mediaImg, dominantColor, title, brand, dark } = props;
 
@@ -165,27 +87,22 @@ function LinkPreviewCard(props) {
   const isRCS      = styles === "RCS";
   const isOut      = category === "Outgoing";
 
-  /* Play button:
-     - Video: always show, ignores the Show Play/Pause toggle
-     - Sent links + Received links: show only if toggle is on */
   const showPlay = isVideo ? true : (isLink && showPlayProp);
-
-  /* Read receipt only on: Sent links+RCS, Image+RCS+Outgoing, Video+RCS+Outgoing */
   const showReadReceipt =
     (isSentLink && isRCS) ||
     (isImage    && isRCS && isOut) ||
     (isVideo    && isRCS && isOut);
 
-  /* Card background — dominant color from image, unaffected by dark toggle */
+  /* Card background — dominant color, unaffected by dark toggle */
   const hasDominant  = mediaImg && dominantColor && dominantColor !== "#e0e0e0";
   const cardBg       = hasDominant ? dominantColor : (dark ? "#2c2c2c" : "#e8eaed");
   const isDarkCardBg = lum(cardBg) < 0.5;
 
-  /* Info area text responds ONLY to card bg luminance, never to dark mode */
+  /* Info area text responds to card bg luminance only */
   const titleColor = isDarkCardBg ? "#ffffff" : "#1f1f1f";
   const brandColor = isDarkCardBg ? "rgba(255,255,255,0.7)" : "#444746";
 
-  /* Link area uses workspace theme — it's a separate surface above the image */
+  /* Link area uses workspace theme */
   let linkBg, linkText;
   if (isSentLink && isRCS) { linkBg = T.pri;  linkText = dark ? T.onPri : "#ffffff"; }
   else if (isSentLink)     { linkBg = T.priC; linkText = T.onPriC; }
@@ -199,6 +116,9 @@ function LinkPreviewCard(props) {
   const displayUrl = brand
     ? "https://www." + brand.replace(/^https?:\/\/(www\.)?/, "") + "/watch?v=dQw4w9WgXcQ"
     : "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
+
+  /* Read receipt mode: follow workspace dark toggle */
+  const receiptMode = dark ? "Dark" : "Light";
 
   return (
     <div style={{ width: 330, borderRadius: 20, overflow: "hidden", background: cardBg, fontFamily: S.f }}>
@@ -253,9 +173,10 @@ function LinkPreviewCard(props) {
           </span>
         </div>
 
+        {/* ReadReceiptIcon is injected as a global from _shared/read-receipt-icon/ */}
         {showReadReceipt && (
           <div style={{ position: "absolute", bottom: 10, right: 12 }}>
-            <ReadReceipt mode={receiptMode} status={receiptStatus}/>
+            <ReadReceiptIcon mode={receiptMode} status={receiptStatus} />
           </div>
         )}
       </div>
