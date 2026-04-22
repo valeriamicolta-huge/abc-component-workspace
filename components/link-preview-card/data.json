@@ -58,6 +58,11 @@
     "Show Play/Pause": {
       "type": "BOOLEAN",
       "default": true
+    },
+    "Read receipt Status": {
+      "type": "VARIANT",
+      "default": "Read",
+      "options": ["Sending", "Sent", "Delivered", "Read"]
     }
   },
   "tokens": {
