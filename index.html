@@ -316,6 +316,14 @@ function App() {
         {selComp && <aside style={{ width: 300, borderLeft: `1px solid ${T.outlV}`, background: T.surf, display: "flex", flexDirection: "column", flexShrink: 0, overflowY: "auto", transition: `background ${S.dur} ${S.ease}` }}>
           <Section title="Variants" open={sections.variants} onToggle={() => togSec("variants")}>
             {Object.entries(selComp.properties).map(([name, def]) => {
+              /* Check visibility rules if defined */
+              if (selComp.propertyVisibility && selComp.propertyVisibility[name]) {
+                const rules = selComp.propertyVisibility[name].when;
+                const visible = Object.entries(rules).every(([prop, allowed]) =>
+                  allowed.includes(vars[prop] || selComp.properties[prop]?.default)
+                );
+                if (!visible) return null;
+              }
               if (def.type === "BOOLEAN") return <M3Switch key={name} label={name} checked={!!vars[name]} onChange={() => setVar(name, !vars[name])} />;
               if (def.type === "VARIANT" && def.options.length === 2) return <M3Seg key={name} label={name} options={def.options} value={vars[name]||def.default} onChange={v => setVar(name, v)} />;
               return <M3Select key={name} label={name} value={vars[name]||def.default} options={def.options} onChange={v => setVar(name, v)} />;
