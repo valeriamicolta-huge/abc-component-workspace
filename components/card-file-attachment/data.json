@@ -5,13 +5,22 @@
   "figmaFileKey": "5L3DIB62Y0dFU3uVgLBeVK",
   "figmaNodeId": "11021:39653",
   "platform": "Android",
-  "dependencies": ["read-receipt-icon"],
-
+  "dependencies": [
+    "read-receipt-icon",
+    "avatar"
+  ],
   "properties": {
     "type": {
       "type": "VARIANT",
       "default": "File",
-      "options": ["Contact", "Loading", "File", "File receipt icon", "File draft", "Photos card"]
+      "options": [
+        "Contact",
+        "Loading",
+        "File",
+        "File receipt icon",
+        "File draft",
+        "Photos card"
+      ]
     },
     "stroke": {
       "type": "BOOLEAN",
@@ -20,21 +29,33 @@
     "readReceiptStatus": {
       "type": "VARIANT",
       "default": "Read",
-      "options": ["Sending", "Sent", "Delivered", "Read"]
+      "options": [
+        "Sending",
+        "Sent",
+        "Delivered",
+        "Read"
+      ]
     }
   },
-
   "propertyVisibility": {
     "readReceiptStatus": {
-      "when": { "type": ["File receipt icon"] }
+      "when": {
+        "type": [
+          "File receipt icon"
+        ]
+      }
     }
   },
-
   "tokens": {
     "cornerRadius": "20dp",
     "width": "wrap content",
     "mediaHeight": "N/A",
-    "padding": { "top": 18, "right": 16, "bottom": 18, "left": 16 },
+    "padding": {
+      "top": 18,
+      "right": 16,
+      "bottom": 18,
+      "left": 16
+    },
     "typography": {
       "fileName": {
         "token": "Variable/Label Large",
@@ -50,41 +71,134 @@
       }
     }
   },
-
   "colors": {
     "light": [
-      ["Card background", "md.sys.color.surface-container", "#f0f4f9"],
-      ["Stroke border", "md.sys.color.outline-variant", "#c4c7c5"],
-      ["File name / title", "md.sys.color.on-surface", "#1f1f1f"],
-      ["Subtitle / metadata", "md.sys.color.on-surface-variant", "#444746"],
-      ["Contact name (no stroke)", "md.sys.color.on-error-container", "#8c1d18"],
-      ["Icon square background", "md.sys.color.secondary", "#00639b"],
-      ["Icon symbol", "md.sys.color.on-secondary", "#ffffff"],
-      ["Photos circle background", "md.sys.color.surface", "#ffffff"],
-      ["Skeleton lines", "md.sys.color.surface-container-highest", "#dde3ea"]
+      [
+        "Card background",
+        "md.sys.color.surface-container",
+        "#f0f4f9"
+      ],
+      [
+        "Stroke border",
+        "md.sys.color.outline-variant",
+        "#c4c7c5"
+      ],
+      [
+        "File name / title",
+        "md.sys.color.on-surface",
+        "#1f1f1f"
+      ],
+      [
+        "Subtitle / metadata",
+        "md.sys.color.on-surface-variant",
+        "#444746"
+      ],
+      [
+        "Contact name (no stroke)",
+        "md.sys.color.on-error-container",
+        "#8c1d18"
+      ],
+      [
+        "Icon square background",
+        "md.sys.color.secondary",
+        "#00639b"
+      ],
+      [
+        "Icon symbol",
+        "md.sys.color.on-secondary",
+        "#ffffff"
+      ],
+      [
+        "Photos circle background",
+        "md.sys.color.surface",
+        "#ffffff"
+      ],
+      [
+        "Skeleton lines",
+        "md.sys.color.surface-container-highest",
+        "#dde3ea"
+      ]
     ],
     "dark": [
-      ["Card background", "md.sys.color.surface-container", "#1e1f20"],
-      ["Stroke border", "md.sys.color.outline-variant", "#444746"],
-      ["File name / title", "md.sys.color.on-surface", "#e3e3e3"],
-      ["Subtitle / metadata", "md.sys.color.on-surface-variant", "#c4c7c5"],
-      ["Contact name (no stroke)", "md.sys.color.on-error-container", "#f2b8b5"],
-      ["Icon square background", "md.sys.color.secondary", "#7fcfff"],
-      ["Icon symbol", "md.sys.color.on-secondary", "#003549"],
-      ["Photos circle background", "md.sys.color.surface", "#131314"],
-      ["Skeleton lines", "md.sys.color.surface-container-highest", "#333537"]
+      [
+        "Card background",
+        "md.sys.color.surface-container",
+        "#1e1f20"
+      ],
+      [
+        "Stroke border",
+        "md.sys.color.outline-variant",
+        "#444746"
+      ],
+      [
+        "File name / title",
+        "md.sys.color.on-surface",
+        "#e3e3e3"
+      ],
+      [
+        "Subtitle / metadata",
+        "md.sys.color.on-surface-variant",
+        "#c4c7c5"
+      ],
+      [
+        "Contact name (no stroke)",
+        "md.sys.color.on-error-container",
+        "#f2b8b5"
+      ],
+      [
+        "Icon square background",
+        "md.sys.color.secondary",
+        "#7fcfff"
+      ],
+      [
+        "Icon symbol",
+        "md.sys.color.on-secondary",
+        "#003549"
+      ],
+      [
+        "Photos circle background",
+        "md.sys.color.surface",
+        "#131314"
+      ],
+      [
+        "Skeleton lines",
+        "md.sys.color.surface-container-highest",
+        "#333537"
+      ]
     ]
   },
-
   "assets": [
-    ["Avatar", "Image", "36×36dp circle — placeholder for contact photo"],
-    ["Video thumbnail", "Image", "56×56dp rounded rect (r=8dp) — placeholder for media preview"],
-    ["Photos logo", "Inline SVG", "24×24dp, 4-color quadrant logo inside 36×36dp white circle"],
-    ["File icon", "Material Symbol", "'drive_pdf' ligature, 20×20dp, on-secondary color"],
-    ["Loading spinner", "CSS animation", "36×36dp arc, secondary color, 0.9s linear spin"],
-    ["Remove badge", "Material Symbol", "'close' ligature, 16×16dp inside 24×24dp dark circle"]
+    [
+      "Avatar",
+      "Image",
+      "36\u00d736dp circle \u2014 placeholder for contact photo"
+    ],
+    [
+      "Video thumbnail",
+      "Image",
+      "56\u00d756dp rounded rect (r=8dp) \u2014 placeholder for media preview"
+    ],
+    [
+      "Photos logo",
+      "Inline SVG",
+      "24\u00d724dp, 4-color quadrant logo inside 36\u00d736dp white circle"
+    ],
+    [
+      "File icon",
+      "Material Symbol",
+      "'drive_pdf' ligature, 20\u00d720dp, on-secondary color"
+    ],
+    [
+      "Loading spinner",
+      "CSS animation",
+      "36\u00d736dp arc, secondary color, 0.9s linear spin"
+    ],
+    [
+      "Remove badge",
+      "Material Symbol",
+      "'close' ligature, 16\u00d716dp inside 24\u00d724dp dark circle"
+    ]
   ],
-
   "variants": [
     {
       "name": "Contact",
@@ -100,91 +214,169 @@
     },
     {
       "name": "File receipt icon",
-      "desc": "Same as File but the card aligns items to the bottom (items-end) and shows a 16×16dp ReadReceiptIcon at bottom-right (8dp inset). Read receipt status is controllable via the readReceiptStatus prop."
+      "desc": "Same as File but the card aligns items to the bottom (items-end) and shows a 16\u00d716dp ReadReceiptIcon at bottom-right (8dp inset). Read receipt status is controllable via the readReceiptStatus prop."
     },
     {
       "name": "File draft",
-      "desc": "Same as File but the wrapper has position:relative and a 24×24dp remove badge (dark circle + close icon) positioned at top:-12dp right:-4dp."
+      "desc": "Same as File but the wrapper has position:relative and a 24\u00d724dp remove badge (dark circle + close icon) positioned at top:-12dp right:-4dp."
     },
     {
       "name": "Photos card",
-      "desc": "Uses 8dp padding (not 16/18dp). Shows a 56×56dp video thumbnail on the left, title and subtitle in the center, and the Google Photos logo in a white circle on the right."
+      "desc": "Uses 8dp padding (not 16/18dp). Shows a 56\u00d756dp video thumbnail on the left, title and subtitle in the center, and the Google Photos logo in a white circle on the right."
     }
   ],
-
   "behavior": {
-    "interactive": "Cards are non-interactive display elements in the compose bar. Tapping the card may open a preview (handled by parent). File draft cards include a remove action via the × badge.",
+    "interactive": "Cards are non-interactive display elements in the compose bar. Tapping the card may open a preview (handled by parent). File draft cards include a remove action via the \u00d7 badge.",
     "dynamic": "The loading spinner animates continuously while the attachment is being processed. The read receipt icon state updates when the message delivery status changes.",
     "playButton": "N/A",
     "readReceipt": "Shown only on File receipt icon variant. Uses the _shared/read-receipt-icon component with mode=Light and status driven by the readReceiptStatus prop."
   },
-
   "states": [
-    ["Contact", "Avatar + name + subtitle. Name color changes with stroke prop."],
-    ["Loading", "Animated spinner + cancel icon + skeleton lines."],
-    ["File", "Icon square + file name + size label."],
-    ["File receipt icon", "Icon square + file name + size label + read receipt badge at bottom-right."],
-    ["File draft", "Icon square + file name + size label + remove badge at top-right."],
-    ["Photos card", "Video thumbnail + title + subtitle + Photos logo circle."]
+    [
+      "Contact",
+      "Avatar + name + subtitle. Name color changes with stroke prop."
+    ],
+    [
+      "Loading",
+      "Animated spinner + cancel icon + skeleton lines."
+    ],
+    [
+      "File",
+      "Icon square + file name + size label."
+    ],
+    [
+      "File receipt icon",
+      "Icon square + file name + size label + read receipt badge at bottom-right."
+    ],
+    [
+      "File draft",
+      "Icon square + file name + size label + remove badge at top-right."
+    ],
+    [
+      "Photos card",
+      "Video thumbnail + title + subtitle + Photos logo circle."
+    ]
   ],
-
   "darkMode": {
     "tokens": [
-      ["surface-container", "#f0f4f9", "#1e1f20"],
-      ["on-surface", "#1f1f1f", "#e3e3e3"],
-      ["on-surface-variant", "#444746", "#c4c7c5"],
-      ["secondary", "#00639b", "#7fcfff"],
-      ["outline-variant", "#c4c7c5", "#444746"]
+      [
+        "surface-container",
+        "#f0f4f9",
+        "#1e1f20"
+      ],
+      [
+        "on-surface",
+        "#1f1f1f",
+        "#e3e3e3"
+      ],
+      [
+        "on-surface-variant",
+        "#444746",
+        "#c4c7c5"
+      ],
+      [
+        "secondary",
+        "#00639b",
+        "#7fcfff"
+      ],
+      [
+        "outline-variant",
+        "#c4c7c5",
+        "#444746"
+      ]
     ],
     "notes": "Dark mode inverts all surface and content tokens. The loading spinner and icon square use the dark secondary token."
   },
-
   "motion": [
-    ["Loading spinner", "continuous", "linear"],
-    ["Stroke toggle", "instant", "N/A"],
-    ["Remove badge appear", "not specified", "not specified"]
+    [
+      "Loading spinner",
+      "continuous",
+      "linear"
+    ],
+    [
+      "Stroke toggle",
+      "instant",
+      "N/A"
+    ],
+    [
+      "Remove badge appear",
+      "not specified",
+      "not specified"
+    ]
   ],
-
   "writing": [
-    ["File name", "Use actual file name with extension, e.g. 'file_name.pdf'"],
-    ["File size", "Format as 'XKB · File' or 'X MB · Type'"],
-    ["Contact subtitle", "Always 'View contact'"],
-    ["Loading subtitle", "Not shown — skeleton lines only"]
+    [
+      "File name",
+      "Use actual file name with extension, e.g. 'file_name.pdf'"
+    ],
+    [
+      "File size",
+      "Format as 'XKB \u00b7 File' or 'X MB \u00b7 Type'"
+    ],
+    [
+      "Contact subtitle",
+      "Always 'View contact'"
+    ],
+    [
+      "Loading subtitle",
+      "Not shown \u2014 skeleton lines only"
+    ]
   ],
-
   "a11y": [
-    ["Content description", "Card should announce type + file name, e.g. 'PDF attachment: file_name.pdf'"],
-    ["Loading state", "Announce 'Loading attachment' with live region"],
-    ["Remove badge", "Content description: 'Remove attachment'"],
-    ["Read receipt", "Inherits content description from ReadReceiptIcon: Sending / Sent / Delivered / Read"]
+    [
+      "Content description",
+      "Card should announce type + file name, e.g. 'PDF attachment: file_name.pdf'"
+    ],
+    [
+      "Loading state",
+      "Announce 'Loading attachment' with live region"
+    ],
+    [
+      "Remove badge",
+      "Content description: 'Remove attachment'"
+    ],
+    [
+      "Read receipt",
+      "Inherits content description from ReadReceiptIcon: Sending / Sent / Delivered / Read"
+    ]
   ],
-
   "conditionalLogic": {
     "description": "The readReceiptStatus prop is only relevant when type is 'File receipt icon'. The stroke prop applies a border to all types.",
     "rules": [
       {
         "condition": "type = 'File receipt icon'",
-        "rendered": ["ReadReceiptIcon at bottom-right", "items-end alignment"],
+        "rendered": [
+          "ReadReceiptIcon at bottom-right",
+          "items-end alignment"
+        ],
         "hidden": []
       },
       {
         "condition": "type = 'File draft'",
-        "rendered": ["Remove badge at top:-12dp right:-4dp"],
+        "rendered": [
+          "Remove badge at top:-12dp right:-4dp"
+        ],
         "hidden": []
       },
       {
         "condition": "stroke = true",
-        "rendered": ["1px outline-variant border"],
+        "rendered": [
+          "1px outline-variant border"
+        ],
         "hidden": []
       },
       {
         "condition": "type = 'Contact' AND stroke = false",
-        "rendered": ["on-error-container name color (#8c1d18)"],
+        "rendered": [
+          "on-error-container name color (#8c1d18)"
+        ],
         "hidden": []
       },
       {
         "condition": "type = 'Contact' AND stroke = true",
-        "rendered": ["on-surface name color (#1f1f1f)"],
+        "rendered": [
+          "on-surface name color (#1f1f1f)"
+        ],
         "hidden": []
       }
     ]
