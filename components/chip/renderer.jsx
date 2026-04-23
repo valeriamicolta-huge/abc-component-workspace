@@ -3,22 +3,8 @@
    Globals: React, useState, useRef, useEffect, THEMES, S, lum, Avatar
    Babel-safe: no backticks, no destructuring params, no optional chaining.
    Must end with: const Renderer = Chip;
-
-   Padding rules from Figma (node 471404:44045):
-     Smart action / Smart reply:
-       With leading icon  → left 12, right 16, vertical 6
-       No leading content → left 16, right 16, vertical 6
-     Suggestion:
-       With leading (avatar or icon) → left 8, right 12, vertical 6
-       No leading                    → left 16, right 16, vertical 6
-
-   Carousel mode (type = Smart action):
-     Shows a horizontally scrollable row of chips.
-     User can add chips (with + button) and remove them (x on each chip).
-     Each chip in the carousel has its own editable label.
 */
 
-/* ── Icons ───────────────────────────────────────────────────────────────── */
 function PhotoIcon(props) {
   var color = props.color || "#0b57d0";
   var size  = props.size  || 18;
@@ -37,25 +23,6 @@ function ReplyIcon(props) {
   );
 }
 
-function CloseIcon(props) {
-  var color = props.color || "#444746";
-  var size  = props.size  || 12;
-  return React.createElement("svg", { width: size, height: size, viewBox: "0 0 12 12", fill: "none", style: { display: "block", flexShrink: 0 } },
-    React.createElement("line", { x1: 2, y1: 2, x2: 10, y2: 10, stroke: color, strokeWidth: 1.5, strokeLinecap: "round" }),
-    React.createElement("line", { x1: 10, y1: 2, x2: 2, y2: 10, stroke: color, strokeWidth: 1.5, strokeLinecap: "round" })
-  );
-}
-
-function PlusIcon(props) {
-  var color = props.color || "#0b57d0";
-  var size  = props.size  || 16;
-  return React.createElement("svg", { width: size, height: size, viewBox: "0 0 16 16", fill: "none", style: { display: "block", flexShrink: 0 } },
-    React.createElement("line", { x1: 8, y1: 3, x2: 8, y2: 13, stroke: color, strokeWidth: 1.5, strokeLinecap: "round" }),
-    React.createElement("line", { x1: 3, y1: 8, x2: 13, y2: 8, stroke: color, strokeWidth: 1.5, strokeLinecap: "round" })
-  );
-}
-
-/* ── Tokens ──────────────────────────────────────────────────────────────── */
 function getTokens(dark) {
   if (dark) {
     return { surface: "#1e1f20", surfaceC: "#2a2b2c", priC: "#0842a0", onPriC: "#d3e3fd", onSurfV: "#c4c7c5", onSurf: "#e3e3e3", outlV: "#444746", primary: "#a8c7fa" };
@@ -67,66 +34,123 @@ function mkLabel(color) {
   return { fontFamily: "'Google Sans Text','Google Sans',sans-serif", fontWeight: 500, fontSize: 14, lineHeight: "20px", letterSpacing: 0, color: color, margin: 0, whiteSpace: "nowrap", userSelect: "none" };
 }
 
-/* ── Single chip element ─────────────────────────────────────────────────── */
-function SingleChip(props) {
+/* All default chip labels for carousel */
+var DEFAULT_LABELS = ["Photos", "Location", "Calendar", "Music", "Contacts", "Files", "Maps", "Notes", "Tasks", "Weather"];
+
+function Chip(props) {
   var type           = props.type           || "Smart action";
   var selected       = !!props.selected;
   var leadingContent = props.leadingContent || "None";
   var label          = props.label          || "label text";
+  var chipCount      = parseInt(props.chipCount) || 3;
   var dark           = !!props.dark;
-  var onRemove       = props.onRemove       || null;
   var tk             = getTokens(dark);
 
-  /* Smart action */
-  if (type === "Smart action") {
+  /* Local editable label state for single chip */
+  var labelState  = useState(label);
+  var localLabel  = labelState[0];
+  var setLabel    = labelState[1];
+  var editing     = useState(false);
+  var isEditing   = editing[0];
+  var setEditing  = editing[1];
+  var inputRef    = useRef(null);
+
+  /* Sync local label when prop changes */
+  useEffect(function() { setLabel(label); }, [label]);
+
+  useEffect(function() {
+    if (isEditing && inputRef.current) inputRef.current.focus();
+  }, [isEditing]);
+
+  /* ── Smart action carousel ── */
+  if (type === "Smart action carousel") {
+    var count  = Math.max(1, Math.min(chipCount, 10));
     var hasIcon = leadingContent === "Icon";
     var bg      = selected ? tk.priC   : tk.surface;
     var border  = selected ? "none"    : "1px solid " + tk.outlV;
     var lblClr  = selected ? tk.onPriC : tk.onSurfV;
     var icnClr  = selected ? tk.onPriC : tk.primary;
-    /* Padding: with icon → 12/16; no icon → 16/16 */
     var pleft   = hasIcon ? 12 : 16;
+
+    var chipItems = [];
+    for (var i = 0; i < count; i++) {
+      var chipLabel = DEFAULT_LABELS[i % DEFAULT_LABELS.length];
+      chipItems.push(
+        React.createElement("div", {
+          key: i,
+          style: { display: "inline-flex", alignItems: "center", height: 40, borderRadius: 20, background: bg, border: border, paddingLeft: pleft, paddingRight: 16, paddingTop: 6, paddingBottom: 6, gap: hasIcon ? 8 : 0, boxSizing: "border-box", cursor: "pointer", flexShrink: 0 }
+        },
+          hasIcon ? React.createElement(PhotoIcon, { color: icnClr, size: 18 }) : null,
+          React.createElement("span", { style: mkLabel(lblClr) }, chipLabel)
+        )
+      );
+    }
+
     return React.createElement("div", {
-      style: { position: "relative", display: "inline-flex", alignItems: "center", height: 40, borderRadius: 20, background: bg, border: border, paddingLeft: pleft, paddingRight: onRemove ? 28 : 16, paddingTop: 6, paddingBottom: 6, gap: hasIcon ? 8 : 0, boxSizing: "border-box", cursor: "pointer", flexShrink: 0 }
+      style: { padding: 24, borderRadius: 20, background: dark ? "#2c2c2e" : "#ffffff", boxShadow: dark ? "0 2px 12px rgba(0,0,0,0.4)" : "0 2px 12px rgba(0,0,0,0.08)", maxWidth: 480 }
+    },
+      React.createElement("div", {
+        style: { display: "flex", flexDirection: "row", gap: 8, overflowX: "auto", paddingBottom: 4 }
+      }, chipItems)
+    );
+  }
+
+  /* ── Single chip types ── */
+
+  /* Chip shell styles */
+  var chipEl = null;
+
+  /* Inline editable label — click to edit, blur/enter to confirm */
+  var labelEl = isEditing
+    ? React.createElement("input", {
+        ref: inputRef,
+        value: localLabel,
+        onChange: function(e) { setLabel(e.target.value); },
+        onBlur: function() { setEditing(false); },
+        onKeyDown: function(e) { if (e.key === "Enter") setEditing(false); },
+        style: { border: "none", outline: "none", background: "transparent", fontFamily: "'Google Sans Text','Google Sans',sans-serif", fontWeight: 500, fontSize: 14, lineHeight: "20px", color: "inherit", width: Math.max(60, localLabel.length * 9) + "px", padding: 0, margin: 0 }
+      })
+    : React.createElement("span", {
+        onClick: function() { setEditing(true); },
+        title: "Click to edit label",
+        style: Object.assign({}, mkLabel("inherit"), { cursor: "text" })
+      }, localLabel);
+
+  if (type === "Smart action") {
+    var hasIcon = leadingContent === "Icon";
+    var bg      = selected ? tk.priC   : tk.surface;
+    var border  = selected ? "none"    : "1px solid " + tk.outlV;
+    var clr     = selected ? tk.onPriC : tk.onSurfV;
+    var icnClr  = selected ? tk.onPriC : tk.primary;
+    var pleft   = hasIcon ? 12 : 16;
+    chipEl = React.createElement("div", {
+      style: { display: "inline-flex", alignItems: "center", height: 40, borderRadius: 20, background: bg, border: border, paddingLeft: pleft, paddingRight: 16, paddingTop: 6, paddingBottom: 6, gap: hasIcon ? 8 : 0, boxSizing: "border-box", cursor: "pointer", flexShrink: 0, color: clr }
     },
       hasIcon ? React.createElement(PhotoIcon, { color: icnClr, size: 18 }) : null,
-      React.createElement("span", { style: mkLabel(lblClr) }, label),
-      onRemove
-        ? React.createElement("div", {
-            onClick: function(e) { e.stopPropagation(); onRemove(); },
-            style: { position: "absolute", right: 8, top: "50%", transform: "translateY(-50%)", width: 16, height: 16, borderRadius: "50%", background: dark ? "#444746" : "#c4c7c5", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", flexShrink: 0 }
-          },
-            React.createElement(CloseIcon, { color: dark ? "#e3e3e3" : "#444746", size: 10 })
-          )
-        : null
+      labelEl
     );
   }
 
-  /* Smart reply */
-  if (type === "Smart reply") {
-    var bg2     = selected ? tk.priC   : tk.surface;
-    var border2 = selected ? "none"    : "1px solid " + tk.outlV;
-    var lblClr2 = selected ? tk.onPriC : tk.onSurfV;
-    return React.createElement("div", {
-      style: { display: "inline-flex", alignItems: "center", height: 40, borderRadius: 20, background: bg2, border: border2, paddingLeft: 16, paddingRight: 16, paddingTop: 6, paddingBottom: 6, boxSizing: "border-box", cursor: "pointer", flexShrink: 0 }
-    },
-      React.createElement("span", { style: mkLabel(lblClr2) }, label)
-    );
+  else if (type === "Smart reply") {
+    var bg2  = selected ? tk.priC   : tk.surface;
+    var brd2 = selected ? "none"    : "1px solid " + tk.outlV;
+    var clr2 = selected ? tk.onPriC : tk.onSurfV;
+    chipEl = React.createElement("div", {
+      style: { display: "inline-flex", alignItems: "center", height: 40, borderRadius: 20, background: bg2, border: brd2, paddingLeft: 16, paddingRight: 16, paddingTop: 6, paddingBottom: 6, boxSizing: "border-box", cursor: "pointer", flexShrink: 0, color: clr2 }
+    }, labelEl);
   }
 
-  /* Suggestion */
-  if (type === "Suggestion") {
+  else if (type === "Suggestion") {
     var hasAvt = leadingContent === "Avatar";
     var hasIc  = leadingContent === "Icon";
     var hasLd  = hasAvt || hasIc;
-    var bg3    = hasAvt ? tk.priC    : tk.surfaceC;
-    var lbl3   = hasAvt ? tk.onPriC  : tk.onSurf;
-    var ic3    = hasAvt ? tk.onPriC  : tk.primary;
-    /* Padding: with leading → left 8, right 12; no leading → 16/16 */
+    var bg3    = hasAvt ? tk.priC   : tk.surfaceC;
+    var clr3   = hasAvt ? tk.onPriC : tk.onSurf;
+    var ic3    = hasAvt ? tk.onPriC : tk.primary;
     var pl3    = hasLd ? 8  : 16;
     var pr3    = hasLd ? 12 : 16;
-    return React.createElement("div", {
-      style: { display: "inline-flex", alignItems: "center", height: 32, borderRadius: 32, background: bg3, border: "none", paddingLeft: pl3, paddingRight: pr3, paddingTop: 6, paddingBottom: 6, gap: hasLd ? 4 : 0, boxSizing: "border-box", cursor: "pointer", flexShrink: 0, overflow: "hidden" }
+    chipEl = React.createElement("div", {
+      style: { display: "inline-flex", alignItems: "center", height: 32, borderRadius: 32, background: bg3, border: "none", paddingLeft: pl3, paddingRight: pr3, paddingTop: 6, paddingBottom: 6, gap: hasLd ? 4 : 0, boxSizing: "border-box", cursor: "pointer", flexShrink: 0, overflow: "hidden", color: clr3 }
     },
       hasAvt
         ? React.createElement("div", { style: { width: 20, height: 20, borderRadius: "50%", overflow: "hidden", flexShrink: 0 } },
@@ -136,103 +160,32 @@ function SingleChip(props) {
           )
         : null,
       hasIc ? React.createElement(ReplyIcon, { color: ic3, size: 18 }) : null,
-      React.createElement("span", { style: Object.assign({}, mkLabel(lbl3), { paddingLeft: hasLd ? 4 : 0 }) }, label)
+      React.createElement("span", {
+        onClick: function() { setEditing(true); },
+        title: "Click to edit label",
+        style: Object.assign({}, mkLabel(clr3), { paddingLeft: hasLd ? 4 : 0, cursor: "text" })
+      }, isEditing
+        ? React.createElement("input", {
+            ref: inputRef,
+            value: localLabel,
+            onChange: function(e) { setLabel(e.target.value); },
+            onBlur: function() { setEditing(false); },
+            onKeyDown: function(e) { if (e.key === "Enter") setEditing(false); },
+            style: { border: "none", outline: "none", background: "transparent", fontFamily: "'Google Sans Text','Google Sans',sans-serif", fontWeight: 500, fontSize: 14, lineHeight: "20px", color: "inherit", width: Math.max(60, localLabel.length * 9) + "px", padding: 0, margin: 0 }
+          })
+        : localLabel
+      )
     );
   }
 
-  return null;
-}
-
-/* ── Main renderer ───────────────────────────────────────────────────────── */
-function Chip(props) {
-  var type           = props.type           || "Smart action";
-  var selected       = !!props.selected;
-  var leadingContent = props.leadingContent || "None";
-  var label          = props.label          || "label text";
-  var dark           = !!props.dark;
-  var tk             = getTokens(dark);
-
-  /* Carousel state — list of chip objects */
-  var carouselState  = useState([
-    { id: 1, label: "Photos",       leading: "Icon" },
-    { id: 2, label: "Location",     leading: "Icon" },
-    { id: 3, label: "Calendar",     leading: "Icon" },
-  ]);
-  var chips          = carouselState[0];
-  var setChips       = carouselState[1];
-  var nextId         = useState(4);
-  var getNextId      = nextId[0];
-  var setNextId      = nextId[1];
-  var newLabel       = useState("");
-  var newLabelVal    = newLabel[0];
-  var setNewLabel    = newLabel[1];
-  var inputRef       = useRef(null);
-
-  function addChip() {
-    var lbl = newLabelVal.trim() || "New chip";
-    setChips(function(prev) {
-      return prev.concat([{ id: getNextId, label: lbl, leading: leadingContent }]);
-    });
-    setNextId(function(n) { return n + 1; });
-    setNewLabel("");
-    if (inputRef.current) inputRef.current.focus();
-  }
-
-  function removeChip(id) {
-    setChips(function(prev) { return prev.filter(function(c) { return c.id !== id; }); });
-  }
-
-  /* Carousel view — Smart action only */
-  if (type === "Smart action carousel") {
-    return React.createElement("div", {
-      style: { display: "flex", flexDirection: "column", gap: 16, padding: 24, borderRadius: 20, background: dark ? "#2c2c2e" : "#ffffff", boxShadow: dark ? "0 2px 12px rgba(0,0,0,0.4)" : "0 2px 12px rgba(0,0,0,0.08)", maxWidth: 480 }
-    },
-      /* Scrollable chip row */
-      React.createElement("div", {
-        style: { display: "flex", flexDirection: "row", gap: 8, overflowX: "auto", paddingBottom: 4 }
-      },
-        chips.map(function(c) {
-          return React.createElement(SingleChip, {
-            key: c.id,
-            type: "Smart action",
-            selected: selected,
-            leadingContent: c.leading,
-            label: c.label,
-            dark: dark,
-            onRemove: function() { removeChip(c.id); }
-          });
-        })
-      ),
-      /* Add chip input row */
-      React.createElement("div", {
-        style: { display: "flex", gap: 8, alignItems: "center" }
-      },
-        React.createElement("input", {
-          ref: inputRef,
-          value: newLabelVal,
-          onChange: function(e) { setNewLabel(e.target.value); },
-          onKeyDown: function(e) { if (e.key === "Enter") addChip(); },
-          placeholder: "Chip label...",
-          style: { flex: 1, height: 36, padding: "0 12px", borderRadius: 18, border: "1px solid " + tk.outlV, background: tk.surface, color: tk.onSurf, fontFamily: "'Google Sans Text','Google Sans',sans-serif", fontSize: 13, outline: "none", boxSizing: "border-box" }
-        }),
-        React.createElement("div", {
-          onClick: addChip,
-          style: { width: 36, height: 36, borderRadius: 18, background: tk.priC, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", flexShrink: 0 }
-        },
-          React.createElement(PlusIcon, { color: tk.onPriC, size: 16 })
-        )
-      ),
-      React.createElement("p", {
-        style: { margin: 0, fontSize: 11, color: tk.onSurfV, fontFamily: "'Google Sans Text','Google Sans',sans-serif" }
-      }, "Type a label and press + or Enter to add a chip. Click \u00d7 to remove.")
-    );
-  }
-
-  /* Single chip view — wrapped in a visible card */
+  /* Wrap in visible card */
   return React.createElement("div", {
-    style: { display: "inline-flex", alignItems: "center", justifyContent: "center", padding: 32, borderRadius: 20, background: dark ? "#2c2c2e" : "#ffffff", boxShadow: dark ? "0 2px 12px rgba(0,0,0,0.4)" : "0 2px 12px rgba(0,0,0,0.08)" }
+    style: { display: "inline-flex", flexDirection: "column", alignItems: "center", gap: 8, padding: 32, borderRadius: 20, background: dark ? "#2c2c2e" : "#ffffff", boxShadow: dark ? "0 2px 12px rgba(0,0,0,0.4)" : "0 2px 12px rgba(0,0,0,0.08)" }
   },
-    React.createElement(SingleChip, { type: type, selected: selected, leadingContent: leadingContent, label: label, dark: dark })
+    chipEl,
+    React.createElement("p", {
+      style: { margin: 0, fontSize: 11, color: tk.onSurfV, fontFamily: "'Google Sans Text',sans-serif" }
+    }, "Click label to edit")
   );
 }
 
