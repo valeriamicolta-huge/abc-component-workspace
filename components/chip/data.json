@@ -31,6 +31,7 @@
       "default": "Smart action",
       "options": [
         "Smart action",
+        "Smart action carousel",
         "Suggestion",
         "Smart reply"
       ]
@@ -54,6 +55,8 @@
       "options": [
         "label text",
         "Photos",
+        "Location",
+        "Calendar",
         "Personal",
         "Transactions",
         "OTPs",
@@ -66,7 +69,8 @@
         "Share location",
         "Create event",
         "Andrea",
-        "Unread"
+        "Unread",
+        "All"
       ]
     }
   },
@@ -100,7 +104,7 @@
         "#F0F4F9"
       ],
       [
-        "Primary Container (selected bg / Suggestion avatar)",
+        "Primary Container (selected bg)",
         "Primary Container",
         "#D3E3FD"
       ],
@@ -166,20 +170,24 @@
   "variants": [
     {
       "name": "Smart action",
-      "desc": "40dp height, 20dp radius. Optional leading icon (18dp, primary color). Toggles selected state."
+      "desc": "40dp height, 20dp radius. Optional leading icon (18dp, primary color). Toggles selected state. Left padding 12dp with icon, 16dp without."
+    },
+    {
+      "name": "Smart action carousel",
+      "desc": "Horizontally scrollable row of Smart action chips. Add and remove chips interactively."
     },
     {
       "name": "Suggestion",
-      "desc": "32dp height, 32dp radius. No border. Avatar or icon leading. Avatar variant uses primary-container bg; icon variant uses surface-container bg."
+      "desc": "32dp height, 32dp radius. No border. Avatar or icon leading. Left 8dp with leading, 16dp without. Right 12dp with leading, 16dp without."
     },
     {
       "name": "Smart reply",
-      "desc": "40dp height, 20dp radius. Label only, no leading content. Toggles selected state."
+      "desc": "40dp height, 20dp radius. Label only, no leading content. 16dp padding both sides."
     }
   ],
   "behavior": {
-    "interactive": "Tap toggles selected state (Smart action, Smart reply). Suggestion chips are non-toggle \u2014 tap triggers action.",
-    "dynamic": "Smart action carousel scrolls horizontally. Suggestion row is ephemeral \u2014 chips appear contextually.",
+    "interactive": "Tap toggles selected state (Smart action, Smart reply). Suggestion chips are non-toggle. Carousel supports add/remove.",
+    "dynamic": "Smart action carousel scrolls horizontally. Suggestion row is ephemeral.",
     "readReceipt": "N/A"
   },
   "states": [
@@ -263,7 +271,7 @@
     ],
     [
       "Keyboard",
-      "Tab to focus, Space/Enter to activate"
+      "Tab to focus, Space or Enter to activate"
     ]
   ],
   "assets": [
@@ -298,6 +306,19 @@
         ],
         "hidden": [
           "Leading icon"
+        ]
+      },
+      {
+        "condition": "type = Smart action carousel",
+        "rendered": [
+          "Scrollable chip row",
+          "Add chip input",
+          "Remove button per chip"
+        ],
+        "hidden": [
+          "leadingContent",
+          "selected",
+          "label"
         ]
       },
       {
