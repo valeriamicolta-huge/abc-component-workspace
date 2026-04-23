@@ -42,13 +42,15 @@ function Chip(props) {
   var dark           = !!props.dark;
   var tk             = getTokens(dark);
 
+  var chip = null;
+
   if (type === "Smart action") {
     var hasIcon = leadingContent === "Icon";
     var bg      = selected ? tk.priC   : tk.surface;
     var border  = selected ? "none"    : "1px solid " + tk.outlV;
     var lblClr  = selected ? tk.onPriC : tk.onSurfV;
     var icnClr  = selected ? tk.onPriC : tk.primary;
-    return React.createElement("div", {
+    chip = React.createElement("div", {
       style: { display: "inline-flex", alignItems: "center", height: 40, borderRadius: 20, background: bg, border: border, paddingLeft: hasIcon ? 12 : 16, paddingRight: 16, paddingTop: 6, paddingBottom: 6, gap: hasIcon ? 8 : 0, boxSizing: "border-box", cursor: "pointer", flexShrink: 0 }
     },
       hasIcon ? React.createElement(PhotoIcon, { color: icnClr, size: 18 }) : null,
@@ -56,25 +58,25 @@ function Chip(props) {
     );
   }
 
-  if (type === "Smart reply") {
+  else if (type === "Smart reply") {
     var bg2     = selected ? tk.priC   : tk.surface;
     var border2 = selected ? "none"    : "1px solid " + tk.outlV;
     var lblClr2 = selected ? tk.onPriC : tk.onSurfV;
-    return React.createElement("div", {
+    chip = React.createElement("div", {
       style: { display: "inline-flex", alignItems: "center", height: 40, borderRadius: 20, background: bg2, border: border2, paddingLeft: 16, paddingRight: 16, paddingTop: 6, paddingBottom: 6, boxSizing: "border-box", cursor: "pointer", flexShrink: 0 }
     },
       React.createElement("span", { style: mkLabel(lblClr2) }, label)
     );
   }
 
-  if (type === "Suggestion") {
+  else if (type === "Suggestion") {
     var hasAvt = leadingContent === "Avatar";
     var hasIc  = leadingContent === "Icon";
     var hasLd  = hasAvt || hasIc;
     var bg3    = hasAvt ? tk.priC   : tk.surfaceC;
     var lbl3   = hasAvt ? tk.onPriC : tk.onSurf;
     var ic3    = hasAvt ? tk.onPriC : tk.primary;
-    return React.createElement("div", {
+    chip = React.createElement("div", {
       style: { display: "inline-flex", alignItems: "center", height: 32, borderRadius: 32, background: bg3, border: "none", paddingLeft: hasLd ? 4 : 8, paddingRight: 12, paddingTop: 6, paddingBottom: 6, gap: hasLd ? 4 : 0, boxSizing: "border-box", cursor: "pointer", flexShrink: 0, overflow: "hidden" }
     },
       hasAvt
@@ -89,7 +91,18 @@ function Chip(props) {
     );
   }
 
-  return null;
+  /* Wrap in a visible surface card so the chip is easy to see on the canvas */
+  return React.createElement("div", {
+    style: {
+      display:        "inline-flex",
+      alignItems:     "center",
+      justifyContent: "center",
+      padding:        32,
+      borderRadius:   20,
+      background:     dark ? "#2c2c2e" : "#ffffff",
+      boxShadow:      dark ? "0 2px 12px rgba(0,0,0,0.4)" : "0 2px 12px rgba(0,0,0,0.08)",
+    }
+  }, chip);
 }
 
 const Renderer = Chip;
