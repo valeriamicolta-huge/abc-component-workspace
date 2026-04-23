@@ -1,21 +1,9 @@
 {
   "components": [
-    {
-      "id": "link-preview-card",
-      "name": "Link Preview Card",
-      "addedBy": "Valeria",
-      "addedDate": "2026-04-21"
-    },
-    {
-      "id": "card-file-attachment",
-      "name": "Card File Attachment",
-      "addedBy": "Valeria",
-      "addedDate": "2026-04-21"
-    },{
-      "id": "chip",
-      "name": "Chip",
-      "addedBy": "Valeria",
-      "addedDate": "2026-04-22"
-    }
+    { "id": "link-preview-card", "name": "Link Preview Card", "addedBy": "Valeria", "addedDate": "2026-04-21" },
+    { "id": "card-file-attachment", "name": "Card File Attachment", "addedBy": "Valeria", "addedDate": "2026-04-21" },
+    { "id": "chip", "name": "Chip", "addedBy": "Valeria", "addedDate": "2026-04-22" },
+    { "id": "avatar", "name": "Avatar", "addedBy": "Valeria", "addedDate": "2026-04-23" },
+    { "id": "read-receipt-icon", "name": "Read Receipt Icon", "addedBy": "Valeria", "addedDate": "2026-04-23" }
   ]
 }
