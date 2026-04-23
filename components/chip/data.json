@@ -1,0 +1,148 @@
+{
+  "id": "chip",
+  "name": "Chip",
+  "figmaNodeId": "471404:44042",
+  "figmaFileKey": "5L3DIB62Y0dFU3uVgLBeVK",
+  "description": "Chips help users take actions, make selections, filter content, or enter information. ABC uses Smart action, Smart reply, and Suggestion chip types.",
+  "dependencies": ["avatar"],
+  "propertyVisibility": {
+    "leadingContent": {
+      "when": { "type": ["Smart action", "Suggestion"] }
+    },
+    "selected": {
+      "when": { "type": ["Smart action", "Smart reply"] }
+    },
+    "label": {}
+  },
+  "properties": {
+    "type": {
+      "type": "VARIANT",
+      "default": "Smart action",
+      "options": ["Smart action", "Suggestion", "Smart reply"]
+    },
+    "selected": {
+      "type": "BOOLEAN",
+      "default": false
+    },
+    "leadingContent": {
+      "type": "VARIANT",
+      "default": "Icon",
+      "options": ["None", "Icon", "Avatar"]
+    },
+    "label": {
+      "type": "VARIANT",
+      "default": "label text",
+      "options": ["label text", "Photos", "Personal", "Transactions", "OTPs", "Offers", "Business", "Yes", "Sure", "Sounds good", "On my way", "Share location", "Create event", "Andrea", "Unread"]
+    }
+  },
+  "tokens": {
+    "cornerRadius": "20dp (Smart action / Smart reply) · 32dp (Suggestion)",
+    "width": "auto (hug content)",
+    "mediaHeight": "40dp (Smart action / Smart reply) · 32dp (Suggestion)",
+    "padding": {
+      "top": 6,
+      "right": 16,
+      "bottom": 6,
+      "left": 12
+    },
+    "typography": {
+      "label": {
+        "token": "Label Large",
+        "spec": "Google Sans Text Medium, 14/20, tracking 0"
+      }
+    }
+  },
+  "colors": {
+    "light": [
+      ["Surface (unselected bg)", "Surface", "#FFFFFF"],
+      ["Surface Container (Suggestion unread)", "Surface Container", "#F0F4F9"],
+      ["Primary Container (selected bg / Suggestion avatar)", "Primary Container", "#D3E3FD"],
+      ["Outline Variant (unselected border)", "Outline Variant", "#C4C7C5"],
+      ["On Surface Variant (label unselected)", "On Surface Variant", "#444746"],
+      ["On Primary Container (label selected)", "On Primary Container", "#0842A0"],
+      ["Primary (icon color)", "Primary", "#0B57D0"]
+    ],
+    "dark": [
+      ["Surface (unselected bg)", "Surface", "#1E1F20"],
+      ["Surface Container (Suggestion unread)", "Surface Container", "#2A2B2C"],
+      ["Primary Container (selected bg)", "Primary Container", "#0842A0"],
+      ["Outline Variant (unselected border)", "Outline Variant", "#444746"],
+      ["On Surface Variant (label unselected)", "On Surface Variant", "#C4C7C5"],
+      ["On Primary Container (label selected)", "On Primary Container", "#D3E3FD"],
+      ["Primary (icon color)", "Primary", "#A8C7FA"]
+    ]
+  },
+  "variants": [
+    { "name": "Smart action", "desc": "40dp height, 20dp radius. Optional leading icon (18dp, primary color). Toggles selected state." },
+    { "name": "Suggestion", "desc": "32dp height, 32dp radius. No border. Avatar or icon leading. Avatar variant uses primary-container bg; icon variant uses surface-container bg." },
+    { "name": "Smart reply", "desc": "40dp height, 20dp radius. Label only, no leading content. Toggles selected state." }
+  ],
+  "behavior": {
+    "interactive": "Tap toggles selected state (Smart action, Smart reply). Suggestion chips are non-toggle — tap triggers action.",
+    "dynamic": "Smart action carousel scrolls horizontally. Suggestion row is ephemeral — chips appear contextually.",
+    "readReceipt": "N/A"
+  },
+  "states": [
+    ["Unselected", "Surface bg, outline-variant border, on-surface-variant label."],
+    ["Selected", "Primary-container bg, no border, on-primary-container label."],
+    ["Disabled", "Reduced opacity (38%). Not interactive."]
+  ],
+  "darkMode": {
+    "tokens": [
+      ["Surface", "#FFFFFF", "#1E1F20"],
+      ["Primary Container", "#D3E3FD", "#0842A0"],
+      ["Outline Variant", "#C4C7C5", "#444746"],
+      ["On Surface Variant", "#444746", "#C4C7C5"],
+      ["On Primary Container", "#0842A0", "#D3E3FD"],
+      ["Primary", "#0B57D0", "#A8C7FA"]
+    ],
+    "notes": "Icon color uses Primary token in both modes."
+  },
+  "motion": [
+    ["Selection", "150ms", "cubic-bezier(0.2, 0, 0, 1)"]
+  ],
+  "writing": [
+    ["Label", "Short, action-oriented. Max 1 line. No punctuation."],
+    ["Smart reply", "Conversational, direct response phrasing (Yes, Sure, Sounds good)."]
+  ],
+  "a11y": [
+    ["Role", "button or checkbox (if toggleable)"],
+    ["Label", "aria-label matches visible chip label"],
+    ["Selected state", "aria-pressed or aria-selected for toggleable chips"],
+    ["Keyboard", "Tab to focus, Space/Enter to activate"]
+  ],
+  "assets": [
+    ["Leading icon", "18x18dp", "Inline SVG, primary color"],
+    ["Avatar", "20x20dp", "From _shared/avatar shared component"]
+  ],
+  "conditionalLogic": {
+    "description": "leadingContent only applies to Smart action and Suggestion types.",
+    "rules": [
+      {
+        "condition": "type = Smart action, leadingContent = Icon",
+        "rendered": ["Leading icon (18dp)", "Label", "Border (unselected)"],
+        "hidden": []
+      },
+      {
+        "condition": "type = Smart action, leadingContent = None",
+        "rendered": ["Label", "Border (unselected)"],
+        "hidden": ["Leading icon"]
+      },
+      {
+        "condition": "type = Suggestion, leadingContent = Avatar",
+        "rendered": ["Avatar (20dp)", "Label"],
+        "hidden": ["Border", "Icon"]
+      },
+      {
+        "condition": "type = Suggestion, leadingContent = Icon",
+        "rendered": ["Icon (18dp)", "Label"],
+        "hidden": ["Border", "Avatar"]
+      },
+      {
+        "condition": "type = Smart reply",
+        "rendered": ["Label", "Border (unselected)"],
+        "hidden": ["Leading icon", "Avatar"]
+      }
+    ]
+  }
+}
