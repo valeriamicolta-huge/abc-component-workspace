@@ -166,8 +166,8 @@ function Renderer(props) {
       React.createElement("div", { style: cardStyle() },
         /* Avatar shared component — _shared/avatar/component.jsx */
         typeof Avatar !== "undefined"
-          ? React.createElement("div", { style: { width: 36, height: 36, flexShrink: 0 } },
-              React.createElement(Avatar, { type: "Single Avatar", dark: dark })
+          ? React.createElement("div", { style: { width: 36, height: 36, flexShrink: 0, borderRadius: "50%", overflow: "hidden" } },
+              React.createElement(Avatar, { type: "Single Avatar", dark: dark, size: 36 })
             )
           : React.createElement("div", { style: { width: 36, height: 36, borderRadius: "50%", background: dark ? "#1a3a5c" : "#d4e4f7", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 } },
               React.createElement("span", { style: { fontSize: 14, fontWeight: 500, color: tk.sec, fontFamily: "'Google Sans',sans-serif" } }, "DH")
