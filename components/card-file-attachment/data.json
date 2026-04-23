@@ -1,288 +1,466 @@
-/* CardFileAttachmentsCategories — renderer.jsx
-   Figma: 5L3DIB62Y0dFU3uVgLBeVK, node 11021:39653
-
-   Globals injected by index.html:
-     React, useState, useRef, useEffect, THEMES, S, useT, lum
-     ReadReceiptIcon  from _shared/read-receipt-icon (declared in data.json dependencies)
-
-   Props passed by the workspace:
-     type              "Contact" | "Loading" | "File" | "File receipt icon" | "File draft" | "Photos card"
-     stroke            boolean
-     readReceiptStatus "Sending" | "Sent" | "Delivered" | "Read"
-     dark              boolean (injected by workspace)
-
-   IMPORTANT — Babel-safe rules applied throughout this file:
-     - No template literals (backticks). String concatenation only.
-     - No shorthand object properties { r } — always { r: r }.
-     - No optional chaining.
-     - All icons are pure inline SVG — zero Google Symbols font dependency.
-
-   File receipt icon dark mode rule:
-     Always inverted vs workspace: Light workspace = Dark card, Dark workspace = Light card.
-*/
-
-/* Wavy M3 circular spinner — matches Figma node 11018:40533 */
-var SPINNER_CSS = "@keyframes cfa-rotate { to { transform: rotate(360deg); } } .cfa-spin { animation: cfa-rotate 1.4s linear infinite; transform-origin: 18px 18px; }";
-
-function WavySpinner(props) {
-  var trackColor  = props.trackColor  || "#dde3ea";
-  var activeColor = props.activeColor || "#00639b";
-  var spinR  = 15;
-  var circ   = 2 * Math.PI * spinR;
-  var arcOn  = String(Math.round(circ * 0.7 * 10) / 10);
-  var arcOff = String(Math.round(circ * 0.3 * 10) / 10);
-  var arcDash   = arcOn + " " + arcOff;
-  var arcOffset = circ * 0.25;
-  var waveDash  = "3 1.5 5 1.5 3 1.5 7 1.5 3 1.5 5 1.5 3 1.5 7 1.5";
-
-  return React.createElement("div", { style: { position: "relative", width: 36, height: 36, flexShrink: 0 } },
-    React.createElement("style", null, SPINNER_CSS),
-    React.createElement("svg", { width: 36, height: 36, viewBox: "0 0 36 36", fill: "none", style: { position: "absolute", inset: 0 } },
-      React.createElement("circle", { cx: 18, cy: 18, r: spinR, stroke: trackColor, strokeWidth: 3, strokeLinecap: "round", fill: "none", strokeDasharray: waveDash })
-    ),
-    React.createElement("svg", { width: 36, height: 36, viewBox: "0 0 36 36", fill: "none", style: { position: "absolute", inset: 0 }, className: "cfa-spin" },
-      React.createElement("circle", { cx: 18, cy: 18, r: spinR, stroke: activeColor, strokeWidth: 3, strokeLinecap: "round", fill: "none", strokeDasharray: arcDash, strokeDashoffset: arcOffset })
-    )
-  );
-}
-
-/* Icon: X close — two crossing lines */
-function IconClose(props) {
-  var s  = props.size  || 16;
-  var color = props.color || "#ffffff";
-  var p  = Math.round(s * 0.22);
-  var e  = s - p;
-  var vb = "0 0 " + s + " " + s;
-  return React.createElement("svg", { width: s, height: s, viewBox: vb, fill: "none", style: { display: "block", flexShrink: 0 } },
-    React.createElement("line", { x1: p, y1: p, x2: e, y2: e, stroke: color, strokeWidth: 1.8, strokeLinecap: "round" }),
-    React.createElement("line", { x1: e, y1: p, x2: p, y2: e, stroke: color, strokeWidth: 1.8, strokeLinecap: "round" })
-  );
-}
-
-/* Icon: drive_pdf — white "PDF" text on secondary blue square
-   Matches Figma node 15376:11927: white text label, no document outline */
-function IconDrivePDF(props) {
-  var color = props.color || "#ffffff";
-  return React.createElement("svg", { width: 20, height: 20, viewBox: "0 0 20 20", fill: "none", style: { display: "block", flexShrink: 0 } },
-    React.createElement("text", { x: 10, y: 13.5, textAnchor: "middle", fontSize: 7, fontWeight: 700, fontFamily: "Arial,sans-serif", fill: color, letterSpacing: "0.5" }, "PDF")
-  );
-}
-
-/* Google Photos logo — exact paths from icon___bg.svg (36x36 viewBox) */
-function PhotosLogo(props) {
-  var s = props.size || 36;
-  return React.createElement("svg", { width: s, height: s, viewBox: "0 0 36 36", fill: "none", style: { display: "block", flexShrink: 0 } },
-    React.createElement("path", { d: "M12.5 12C15.5376 12 18 14.4624 18 17.5V18H7.5C7.22386 18 7 17.7761 7 17.5C7 14.4624 9.46243 12 12.5 12Z", fill: "#FBBC04" }),
-    React.createElement("path", { d: "M24 12.5C24 15.5376 21.5376 18 18.5 18H18L18 7.5C18 7.22386 18.2239 7 18.5 7C21.5376 7 24 9.46243 24 12.5Z", fill: "#EA4335" }),
-    React.createElement("path", { d: "M23.5 24C20.4624 24 18 21.5376 18 18.5L18 18L28.5 18C28.7761 18 29 18.2239 29 18.5C29 21.5376 26.5376 24 23.5 24Z", fill: "#4285F4" }),
-    React.createElement("path", { d: "M12 23.5C12 20.4624 14.4624 18 17.5 18L18 18L18 28.5C18 28.7761 17.7761 29 17.5 29C14.4624 29 12 26.5376 12 23.5Z", fill: "#34A853" })
-  );
-}
-
-/* 36x36dp secondary rounded square + "PDF" text — matches Figma exactly */
-function FileIconSlot(props) {
-  var tk = props.tk;
-  return React.createElement("div", { style: { position: "relative", width: 36, height: 36, flexShrink: 0 } },
-    React.createElement("div", { style: { position: "absolute", inset: 0, background: tk.sec, borderRadius: 12 } }),
-    React.createElement("div", { style: { position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", display: "flex", alignItems: "center", justifyContent: "center" } },
-      React.createElement(IconDrivePDF, { color: tk.onSec })
-    )
-  );
-}
-
-/* Token maps */
-function getTokens(dark) {
-  if (dark) {
-    return { bg: "#1e1f20", border: "#444746", onSurf: "#e3e3e3", onSurfV: "#c4c7c5", errName: "#f2b8b5", sec: "#7fcfff", onSec: "#003549", surfW: "#131314", skeleton: "#333537", spinTrack: "#333537", spinArc: "#7fcfff", removeBg: "#e3e3e3", removeX: "#1e1f20" };
-  }
-  return { bg: "#f0f4f9", border: "#c4c7c5", onSurf: "#1f1f1f", onSurfV: "#444746", errName: "#8c1d18", sec: "#00639b", onSec: "#ffffff", surfW: "#ffffff", skeleton: "#dde3ea", spinTrack: "#dde3ea", spinArc: "#00639b", removeBg: "#1f1f1f", removeX: "#ffffff" };
-}
-
-/* Main renderer */
-function Renderer(props) {
-  var type              = props.type              || "File";
-  var stroke            = !!props.stroke;
-  var readReceiptStatus = props.readReceiptStatus || "Read";
-  var avatarType        = props.avatarType        || "Single Avatar";
-  var color             = props.color             || "Red";
-  var initial           = props.initial           || "A";
-  var dark              = !!props.dark;
-
-  var photoState      = useState(null);
-  var photoSrc        = photoState[0];
-  var setPhotoSrc     = photoState[1];
-  var photoInputRef   = useRef(null);
-
-  var tk      = getTokens(dark);
-  /* File receipt icon always uses inverted tokens */
-  var rTk     = getTokens(!dark);
-
-  var cardBase = {
-    borderRadius: 20,
-    display:      "flex",
-    alignItems:   "center",
-    padding:      "18px 16px",
-    gap:          12,
-    flexShrink:   0,
-    position:     "relative",
-    boxSizing:    "border-box",
-  };
-
-  var titleBase = {
-    fontFamily:          "'Google Sans Flex','Google Sans',sans-serif",
-    fontWeight:          500,
-    fontSize:            14,
-    lineHeight:          "20px",
-    margin:              0,
-    fontFeatureSettings: "'ss02' 1",
-  };
-
-  var subtitleBase = {
-    fontFamily:    "'Google Sans Text','Google Sans',sans-serif",
-    fontWeight:    400,
-    fontSize:      12,
-    lineHeight:    "16px",
-    letterSpacing: "0.1px",
-    margin:        0,
-  };
-
-  var titleStyle    = Object.assign({}, titleBase,    { color: tk.onSurf });
-  var subtitleStyle = Object.assign({}, subtitleBase, { color: tk.onSurfV });
-  var rTitleStyle   = Object.assign({}, titleBase,    { color: rTk.onSurf });
-  var rSubtitleStyle= Object.assign({}, subtitleBase, { color: rTk.onSurfV });
-
-  function wrap(children) {
-    return React.createElement("div", { style: { display: "flex", flexDirection: "column", alignItems: "flex-start", borderRadius: 20 } }, children);
-  }
-
-  function cardStyle(overrides) {
-    return Object.assign({}, cardBase, { background: tk.bg, border: stroke ? "1px solid " + tk.border : "none" }, overrides || {});
-  }
-
-  function rCardStyle(overrides) {
-    return Object.assign({}, cardBase, { background: rTk.bg, border: stroke ? "1px solid " + rTk.border : "none" }, overrides || {});
-  }
-
-  /* Contact */
-  if (type === "Contact") {
-    return wrap(
-      React.createElement("div", { style: cardStyle() },
-        /* Avatar shared component — passes avatarType, color, initial, dark, size=36 */
-        React.createElement("div", { style: { width: 36, height: 36, flexShrink: 0, borderRadius: "50%", overflow: "hidden" } },
-          typeof Avatar !== "undefined"
-            ? React.createElement(Avatar, { type: avatarType, color: color, initial: initial, dark: dark, size: 36 })
-            : React.createElement("div", { style: { width: 36, height: 36, borderRadius: "50%", background: dark ? "#1a3a5c" : "#d4e4f7", display: "flex", alignItems: "center", justifyContent: "center" } },
-                React.createElement("span", { style: { fontSize: 14, fontWeight: 500, color: tk.sec, fontFamily: "'Google Sans',sans-serif" } }, "DH")
-              )
-        ),
-        React.createElement("div", { style: { display: "flex", flexDirection: "column" } },
-          React.createElement("p", { style: Object.assign({}, titleStyle, { color: stroke ? tk.onSurf : tk.errName }) }, "Danielle Holmes"),
-          React.createElement("p", { style: subtitleStyle }, "View contact")
-        )
-      )
-    );
-  }
-
-  /* Loading */
-  if (type === "Loading") {
-    return wrap(
-      React.createElement("div", { style: cardStyle() },
-        React.createElement("div", { style: { position: "relative", width: 36, height: 36, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" } },
-          React.createElement(WavySpinner, { trackColor: tk.spinTrack, activeColor: tk.spinArc }),
-          React.createElement("div", { style: { position: "absolute", display: "flex", alignItems: "center", justifyContent: "center" } },
-            React.createElement(IconClose, { size: 16, color: tk.spinArc })
-          )
-        ),
-        React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 4 } },
-          React.createElement("div", { style: { width: 82, height: 14, borderRadius: 20, background: tk.skeleton } }),
-          React.createElement("div", { style: { width: 44, height: 14, borderRadius: 20, background: tk.skeleton } })
-        )
-      )
-    );
-  }
-
-  /* File */
-  if (type === "File") {
-    return wrap(
-      React.createElement("div", { style: cardStyle() },
-        React.createElement(FileIconSlot, { tk: tk }),
-        React.createElement("div", { style: { display: "flex", flexDirection: "column" } },
-          React.createElement("p", { style: titleStyle }, "file_name.pdf"),
-          React.createElement("p", { style: subtitleStyle }, "13KB · File")
-        )
-      )
-    );
-  }
-
-  /* File receipt icon — card uses normal tokens, only receipt icon mode is inverted */
-  if (type === "File receipt icon") {
-    return wrap(
-      React.createElement("div", { style: cardStyle({ alignItems: "flex-end" }) },
-        React.createElement(FileIconSlot, { tk: tk }),
-        React.createElement("div", { style: { display: "flex", flexDirection: "column" } },
-          React.createElement("p", { style: titleStyle }, "file_name.pdf"),
-          React.createElement("p", { style: subtitleStyle }, "13KB · File")
-        ),
-        typeof ReadReceiptIcon !== "undefined"
-          ? React.createElement("div", { style: { position: "absolute", bottom: 8, right: 8, width: 16, height: 16 } },
-              React.createElement(ReadReceiptIcon, { mode: dark ? "Light" : "Dark", status: readReceiptStatus })
-            )
-          : null
-      )
-    );
-  }
-
-  /* File draft */
-  if (type === "File draft") {
-    return React.createElement("div", { style: { position: "relative", display: "inline-flex", flexDirection: "column", gap: 8 } },
-      wrap(
-        React.createElement("div", { style: cardStyle() },
-          React.createElement(FileIconSlot, { tk: tk }),
-          React.createElement("div", { style: { display: "flex", flexDirection: "column" } },
-            React.createElement("p", { style: titleStyle }, "file_name.pdf"),
-            React.createElement("p", { style: subtitleStyle }, "13KB · File")
-          )
-        )
-      ),
-      React.createElement("div", { style: { position: "absolute", top: -12, right: -4, width: 24, height: 24, borderRadius: "50%", background: tk.removeBg, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 } },
-        React.createElement(IconClose, { size: 13, color: tk.removeX })
-      )
-    );
-  }
-
-  /* Photos card */
-  if (type === "Photos card") {
-    function handlePhotoChange(e) {
-      var file = e.target.files && e.target.files[0];
-      if (!file) return;
-      var reader = new FileReader();
-      reader.onload = function(ev) { setPhotoSrc(ev.target.result); };
-      reader.readAsDataURL(file);
+{
+  "id": "card-file-attachment",
+  "name": "Card File Attachment",
+  "description": "Attachment preview chips shown in the message compose area. Displays file, contact, photo, or loading states before a message is sent.",
+  "figmaFileKey": "5L3DIB62Y0dFU3uVgLBeVK",
+  "figmaNodeId": "11021:39653",
+  "platform": "Android",
+  "dependencies": [
+    "read-receipt-icon",
+    "avatar"
+  ],
+  "properties": {
+    "type": {
+      "type": "VARIANT",
+      "default": "File",
+      "options": [
+        "Contact",
+        "Loading",
+        "File",
+        "File receipt icon",
+        "File draft",
+        "Photos card"
+      ]
+    },
+    "stroke": {
+      "type": "BOOLEAN",
+      "default": false
+    },
+    "readReceiptStatus": {
+      "type": "VARIANT",
+      "default": "Read",
+      "options": [
+        "Sending",
+        "Sent",
+        "Delivered",
+        "Read"
+      ]
+    },
+    "color": {
+      "type": "VARIANT",
+      "default": "Red",
+      "options": [
+        "Red",
+        "Green",
+        "Yellow",
+        "Purple",
+        "Pink",
+        "Cyan"
+      ]
+    },
+    "initial": {
+      "type": "VARIANT",
+      "default": "A",
+      "options": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F",
+        "G",
+        "H",
+        "I",
+        "J",
+        "K",
+        "L",
+        "M",
+        "N",
+        "O",
+        "P",
+        "Q",
+        "R",
+        "S",
+        "T",
+        "U",
+        "V",
+        "W",
+        "X",
+        "Y",
+        "Z"
+      ]
+    },
+    "avatarType": {
+      "type": "VARIANT",
+      "default": "Single Avatar",
+      "options": [
+        "Single Avatar",
+        "Unassigned Avatar",
+        "Monogram",
+        "Unassigned Business Avatar",
+        "Business Avatar"
+      ]
     }
-
-    return wrap(
-      React.createElement("div", { style: cardStyle({ padding: 8, alignItems: "center" }) },
-        React.createElement("div", {
-          onClick: function() { if (photoInputRef.current) photoInputRef.current.click(); },
-          style: { width: 56, height: 56, borderRadius: 8, flexShrink: 0, background: photoSrc ? "none" : (dark ? "#1a3050" : "#c5d8f0"), overflow: "hidden", cursor: "pointer", position: "relative", display: "flex", alignItems: "center", justifyContent: "center" }
-        },
-          photoSrc
-            ? React.createElement("img", { src: photoSrc, style: { width: "100%", height: "100%", objectFit: "cover", display: "block" } })
-            : React.createElement("svg", { width: 20, height: 20, viewBox: "0 0 24 24", fill: "none" },
-                React.createElement("path", { d: "M12 5V19M5 12H19", stroke: dark ? "#7fcfff" : "#00639b", strokeWidth: 1.5, strokeLinecap: "round" })
-              )
-        ),
-        React.createElement("input", { ref: photoInputRef, type: "file", accept: "image/*", onChange: handlePhotoChange, style: { display: "none" } }),
-        React.createElement("div", { style: { display: "flex", flexDirection: "column", flex: 1 } },
-          React.createElement("p", { style: titleStyle }, "1 video"),
-          React.createElement("p", { style: subtitleStyle }, "32 MB upload")
-        ),
-        React.createElement("div", { style: { width: 36, height: 36, borderRadius: "50%", background: tk.surfW, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 } },
-          React.createElement(PhotosLogo, { size: 30 })
-        )
-      )
-    );
+  },
+  "propertyVisibility": {
+    "readReceiptStatus": {
+      "when": {
+        "type": [
+          "File receipt icon"
+        ]
+      }
+    },
+    "color": {
+      "when": {
+        "type": [
+          "Contact"
+        ],
+        "avatarType": [
+          "Monogram"
+        ]
+      }
+    },
+    "initial": {
+      "when": {
+        "type": [
+          "Contact"
+        ],
+        "avatarType": [
+          "Monogram"
+        ]
+      }
+    },
+    "avatarType": {
+      "when": {
+        "type": [
+          "Contact"
+        ]
+      }
+    }
+  },
+  "tokens": {
+    "cornerRadius": "20dp",
+    "width": "wrap content",
+    "mediaHeight": "N/A",
+    "padding": {
+      "top": 18,
+      "right": 16,
+      "bottom": 18,
+      "left": 16
+    },
+    "typography": {
+      "fileName": {
+        "token": "Variable/Label Large",
+        "spec": "Google Sans Flex, 500, 14/20"
+      },
+      "contactName": {
+        "token": "Variable/Title Small",
+        "spec": "Google Sans Flex, 500, 14/20"
+      },
+      "subtitle": {
+        "token": "Static/Body Small",
+        "spec": "Google Sans Text, 400, 12/16, tracking 0.1px"
+      }
+    }
+  },
+  "colors": {
+    "light": [
+      [
+        "Card background",
+        "md.sys.color.surface-container",
+        "#f0f4f9"
+      ],
+      [
+        "Stroke border",
+        "md.sys.color.outline-variant",
+        "#c4c7c5"
+      ],
+      [
+        "File name / title",
+        "md.sys.color.on-surface",
+        "#1f1f1f"
+      ],
+      [
+        "Subtitle / metadata",
+        "md.sys.color.on-surface-variant",
+        "#444746"
+      ],
+      [
+        "Contact name (no stroke)",
+        "md.sys.color.on-error-container",
+        "#8c1d18"
+      ],
+      [
+        "Icon square background",
+        "md.sys.color.secondary",
+        "#00639b"
+      ],
+      [
+        "Icon symbol",
+        "md.sys.color.on-secondary",
+        "#ffffff"
+      ],
+      [
+        "Photos circle background",
+        "md.sys.color.surface",
+        "#ffffff"
+      ],
+      [
+        "Skeleton lines",
+        "md.sys.color.surface-container-highest",
+        "#dde3ea"
+      ]
+    ],
+    "dark": [
+      [
+        "Card background",
+        "md.sys.color.surface-container",
+        "#1e1f20"
+      ],
+      [
+        "Stroke border",
+        "md.sys.color.outline-variant",
+        "#444746"
+      ],
+      [
+        "File name / title",
+        "md.sys.color.on-surface",
+        "#e3e3e3"
+      ],
+      [
+        "Subtitle / metadata",
+        "md.sys.color.on-surface-variant",
+        "#c4c7c5"
+      ],
+      [
+        "Contact name (no stroke)",
+        "md.sys.color.on-error-container",
+        "#f2b8b5"
+      ],
+      [
+        "Icon square background",
+        "md.sys.color.secondary",
+        "#7fcfff"
+      ],
+      [
+        "Icon symbol",
+        "md.sys.color.on-secondary",
+        "#003549"
+      ],
+      [
+        "Photos circle background",
+        "md.sys.color.surface",
+        "#131314"
+      ],
+      [
+        "Skeleton lines",
+        "md.sys.color.surface-container-highest",
+        "#333537"
+      ]
+    ]
+  },
+  "assets": [
+    [
+      "Avatar",
+      "Image",
+      "36\u00d736dp circle \u2014 placeholder for contact photo"
+    ],
+    [
+      "Video thumbnail",
+      "Image",
+      "56\u00d756dp rounded rect (r=8dp) \u2014 placeholder for media preview"
+    ],
+    [
+      "Photos logo",
+      "Inline SVG",
+      "24\u00d724dp, 4-color quadrant logo inside 36\u00d736dp white circle"
+    ],
+    [
+      "File icon",
+      "Material Symbol",
+      "'drive_pdf' ligature, 20\u00d720dp, on-secondary color"
+    ],
+    [
+      "Loading spinner",
+      "CSS animation",
+      "36\u00d736dp arc, secondary color, 0.9s linear spin"
+    ],
+    [
+      "Remove badge",
+      "Material Symbol",
+      "'close' ligature, 16\u00d716dp inside 24\u00d724dp dark circle"
+    ]
+  ],
+  "variants": [
+    {
+      "name": "Contact",
+      "desc": "Shows a contact avatar, name, and 'View contact' label. Name color is on-error-container (#8c1d18) when stroke is off, on-surface (#1f1f1f) when stroke is on."
+    },
+    {
+      "name": "Loading",
+      "desc": "Shows an animated circular progress spinner with a cancel icon, and two skeleton placeholder lines for the file name and size."
+    },
+    {
+      "name": "File",
+      "desc": "Shows a secondary-colored rounded square with a drive_pdf symbol, file name, and size/type label."
+    },
+    {
+      "name": "File receipt icon",
+      "desc": "Same as File but the card aligns items to the bottom (items-end) and shows a 16\u00d716dp ReadReceiptIcon at bottom-right (8dp inset). Read receipt status is controllable via the readReceiptStatus prop."
+    },
+    {
+      "name": "File draft",
+      "desc": "Same as File but the wrapper has position:relative and a 24\u00d724dp remove badge (dark circle + close icon) positioned at top:-12dp right:-4dp."
+    },
+    {
+      "name": "Photos card",
+      "desc": "Uses 8dp padding (not 16/18dp). Shows a 56\u00d756dp video thumbnail on the left, title and subtitle in the center, and the Google Photos logo in a white circle on the right."
+    }
+  ],
+  "behavior": {
+    "interactive": "Cards are non-interactive display elements in the compose bar. Tapping the card may open a preview (handled by parent). File draft cards include a remove action via the \u00d7 badge.",
+    "dynamic": "The loading spinner animates continuously while the attachment is being processed. The read receipt icon state updates when the message delivery status changes.",
+    "playButton": "N/A",
+    "readReceipt": "Shown only on File receipt icon variant. Uses the _shared/read-receipt-icon component with mode=Light and status driven by the readReceiptStatus prop."
+  },
+  "states": [
+    [
+      "Contact",
+      "Avatar + name + subtitle. Name color changes with stroke prop."
+    ],
+    [
+      "Loading",
+      "Animated spinner + cancel icon + skeleton lines."
+    ],
+    [
+      "File",
+      "Icon square + file name + size label."
+    ],
+    [
+      "File receipt icon",
+      "Icon square + file name + size label + read receipt badge at bottom-right."
+    ],
+    [
+      "File draft",
+      "Icon square + file name + size label + remove badge at top-right."
+    ],
+    [
+      "Photos card",
+      "Video thumbnail + title + subtitle + Photos logo circle."
+    ]
+  ],
+  "darkMode": {
+    "tokens": [
+      [
+        "surface-container",
+        "#f0f4f9",
+        "#1e1f20"
+      ],
+      [
+        "on-surface",
+        "#1f1f1f",
+        "#e3e3e3"
+      ],
+      [
+        "on-surface-variant",
+        "#444746",
+        "#c4c7c5"
+      ],
+      [
+        "secondary",
+        "#00639b",
+        "#7fcfff"
+      ],
+      [
+        "outline-variant",
+        "#c4c7c5",
+        "#444746"
+      ]
+    ],
+    "notes": "Dark mode inverts all surface and content tokens. The loading spinner and icon square use the dark secondary token."
+  },
+  "motion": [
+    [
+      "Loading spinner",
+      "continuous",
+      "linear"
+    ],
+    [
+      "Stroke toggle",
+      "instant",
+      "N/A"
+    ],
+    [
+      "Remove badge appear",
+      "not specified",
+      "not specified"
+    ]
+  ],
+  "writing": [
+    [
+      "File name",
+      "Use actual file name with extension, e.g. 'file_name.pdf'"
+    ],
+    [
+      "File size",
+      "Format as 'XKB \u00b7 File' or 'X MB \u00b7 Type'"
+    ],
+    [
+      "Contact subtitle",
+      "Always 'View contact'"
+    ],
+    [
+      "Loading subtitle",
+      "Not shown \u2014 skeleton lines only"
+    ]
+  ],
+  "a11y": [
+    [
+      "Content description",
+      "Card should announce type + file name, e.g. 'PDF attachment: file_name.pdf'"
+    ],
+    [
+      "Loading state",
+      "Announce 'Loading attachment' with live region"
+    ],
+    [
+      "Remove badge",
+      "Content description: 'Remove attachment'"
+    ],
+    [
+      "Read receipt",
+      "Inherits content description from ReadReceiptIcon: Sending / Sent / Delivered / Read"
+    ]
+  ],
+  "conditionalLogic": {
+    "description": "The readReceiptStatus prop is only relevant when type is 'File receipt icon'. The stroke prop applies a border to all types.",
+    "rules": [
+      {
+        "condition": "type = 'File receipt icon'",
+        "rendered": [
+          "ReadReceiptIcon at bottom-right",
+          "items-end alignment"
+        ],
+        "hidden": []
+      },
+      {
+        "condition": "type = 'File draft'",
+        "rendered": [
+          "Remove badge at top:-12dp right:-4dp"
+        ],
+        "hidden": []
+      },
+      {
+        "condition": "stroke = true",
+        "rendered": [
+          "1px outline-variant border"
+        ],
+        "hidden": []
+      },
+      {
+        "condition": "type = 'Contact' AND stroke = false",
+        "rendered": [
+          "on-error-container name color (#8c1d18)"
+        ],
+        "hidden": []
+      },
+      {
+        "condition": "type = 'Contact' AND stroke = true",
+        "rendered": [
+          "on-surface name color (#1f1f1f)"
+        ],
+        "hidden": []
+      }
+    ]
   }
-
-  return null;
 }
