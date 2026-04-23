@@ -68,14 +68,14 @@ function IconDrivePDF(props) {
   );
 }
 
-/* Google Photos logo — four quadrant paths */
+/* Google Photos logo — exact paths from icon___bg.svg (36x36 viewBox) */
 function PhotosLogo(props) {
-  var s = props.size || 24;
-  return React.createElement("svg", { width: s, height: s, viewBox: "0 0 48 48", style: { display: "block", flexShrink: 0 } },
-    React.createElement("path", { d: "M2 24 Q2 2 24 2 L24 24 Z",   fill: "#FBBC04" }),
-    React.createElement("path", { d: "M24 2 Q46 2 46 24 L24 24 Z",  fill: "#EA4335" }),
-    React.createElement("path", { d: "M46 24 Q46 46 24 46 L24 24 Z", fill: "#4285F4" }),
-    React.createElement("path", { d: "M24 46 Q2 46 2 24 L24 24 Z",  fill: "#34A853" })
+  var s = props.size || 36;
+  return React.createElement("svg", { width: s, height: s, viewBox: "0 0 36 36", fill: "none", style: { display: "block", flexShrink: 0 } },
+    React.createElement("path", { d: "M12.5 12C15.5376 12 18 14.4624 18 17.5V18H7.5C7.22386 18 7 17.7761 7 17.5C7 14.4624 9.46243 12 12.5 12Z", fill: "#FBBC04" }),
+    React.createElement("path", { d: "M24 12.5C24 15.5376 21.5376 18 18.5 18H18L18 7.5C18 7.22386 18.2239 7 18.5 7C21.5376 7 24 9.46243 24 12.5Z", fill: "#EA4335" }),
+    React.createElement("path", { d: "M23.5 24C20.4624 24 18 21.5376 18 18.5L18 18L28.5 18C28.7761 18 29 18.2239 29 18.5C29 21.5376 26.5376 24 23.5 24Z", fill: "#4285F4" }),
+    React.createElement("path", { d: "M12 23.5C12 20.4624 14.4624 18 17.5 18L18 18L18 28.5C18 28.7761 17.7761 29 17.5 29C14.4624 29 12 26.5376 12 23.5Z", fill: "#34A853" })
   );
 }
 
@@ -103,6 +103,9 @@ function Renderer(props) {
   var type              = props.type              || "File";
   var stroke            = !!props.stroke;
   var readReceiptStatus = props.readReceiptStatus || "Read";
+  var avatarType        = props.avatarType        || "Single Avatar";
+  var color             = props.color             || "Red";
+  var initial           = props.initial           || "A";
   var dark              = !!props.dark;
 
   var photoState      = useState(null);
@@ -164,14 +167,14 @@ function Renderer(props) {
   if (type === "Contact") {
     return wrap(
       React.createElement("div", { style: cardStyle() },
-        /* Avatar shared component — _shared/avatar/component.jsx */
-        typeof Avatar !== "undefined"
-          ? React.createElement("div", { style: { width: 36, height: 36, flexShrink: 0, borderRadius: "50%", overflow: "hidden" } },
-              React.createElement(Avatar, { type: "Single Avatar", dark: dark, size: 36 })
-            )
-          : React.createElement("div", { style: { width: 36, height: 36, borderRadius: "50%", background: dark ? "#1a3a5c" : "#d4e4f7", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 } },
-              React.createElement("span", { style: { fontSize: 14, fontWeight: 500, color: tk.sec, fontFamily: "'Google Sans',sans-serif" } }, "DH")
-            ),
+        /* Avatar shared component — passes avatarType, color, initial, dark, size=36 */
+        React.createElement("div", { style: { width: 36, height: 36, flexShrink: 0, borderRadius: "50%", overflow: "hidden" } },
+          typeof Avatar !== "undefined"
+            ? React.createElement(Avatar, { type: avatarType, color: color, initial: initial, dark: dark, size: 36 })
+            : React.createElement("div", { style: { width: 36, height: 36, borderRadius: "50%", background: dark ? "#1a3a5c" : "#d4e4f7", display: "flex", alignItems: "center", justifyContent: "center" } },
+                React.createElement("span", { style: { fontSize: 14, fontWeight: 500, color: tk.sec, fontFamily: "'Google Sans',sans-serif" } }, "DH")
+              )
+        ),
         React.createElement("div", { style: { display: "flex", flexDirection: "column" } },
           React.createElement("p", { style: Object.assign({}, titleStyle, { color: stroke ? tk.onSurf : tk.errName }) }, "Danielle Holmes"),
           React.createElement("p", { style: subtitleStyle }, "View contact")
@@ -211,14 +214,14 @@ function Renderer(props) {
     );
   }
 
-  /* File receipt icon — always inverted vs workspace */
+  /* File receipt icon — card uses normal tokens, only receipt icon mode is inverted */
   if (type === "File receipt icon") {
-    return React.createElement("div", { style: { display: "flex", alignItems: "flex-start", borderRadius: 20 } },
-      React.createElement("div", { style: rCardStyle({ alignItems: "flex-end" }) },
-        React.createElement(FileIconSlot, { tk: rTk }),
+    return wrap(
+      React.createElement("div", { style: cardStyle({ alignItems: "flex-end" }) },
+        React.createElement(FileIconSlot, { tk: tk }),
         React.createElement("div", { style: { display: "flex", flexDirection: "column" } },
-          React.createElement("p", { style: rTitleStyle }, "file_name.pdf"),
-          React.createElement("p", { style: rSubtitleStyle }, "13KB · File")
+          React.createElement("p", { style: titleStyle }, "file_name.pdf"),
+          React.createElement("p", { style: subtitleStyle }, "13KB · File")
         ),
         typeof ReadReceiptIcon !== "undefined"
           ? React.createElement("div", { style: { position: "absolute", bottom: 8, right: 8, width: 16, height: 16 } },
@@ -261,7 +264,7 @@ function Renderer(props) {
       React.createElement("div", { style: cardStyle({ padding: 8, alignItems: "center" }) },
         React.createElement("div", {
           onClick: function() { if (photoInputRef.current) photoInputRef.current.click(); },
-          style: { width: 56, height: 56, borderRadius: 8, flexShrink: 0, background: photoSrc ? "none" : (dark ? "#1a3050" : "#c5d8f0"), overflow: "hidden", cursor: "pointer", position: "relative", display: "flex", alignItems: "center", justifyContent: "center", border: "1.5px dashed " + (dark ? "#7fcfff" : "#00639b"), boxSizing: "border-box" }
+          style: { width: 56, height: 56, borderRadius: 8, flexShrink: 0, background: photoSrc ? "none" : (dark ? "#1a3050" : "#c5d8f0"), overflow: "hidden", cursor: "pointer", position: "relative", display: "flex", alignItems: "center", justifyContent: "center" }
         },
           photoSrc
             ? React.createElement("img", { src: photoSrc, style: { width: "100%", height: "100%", objectFit: "cover", display: "block" } })
@@ -275,7 +278,7 @@ function Renderer(props) {
           React.createElement("p", { style: subtitleStyle }, "32 MB upload")
         ),
         React.createElement("div", { style: { width: 36, height: 36, borderRadius: "50%", background: tk.surfW, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 } },
-          React.createElement(PhotosLogo, { size: 24 })
+          React.createElement(PhotosLogo, { size: 30 })
         )
       )
     );
