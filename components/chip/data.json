@@ -3,7 +3,7 @@
   "name": "Chip",
   "figmaNodeId": "471404:44042",
   "figmaFileKey": "5L3DIB62Y0dFU3uVgLBeVK",
-  "description": "Chips help users take actions, make selections, filter content, or enter information. ABC uses Smart action, Smart reply, and Suggestion chip types.",
+  "description": "Chips help users take actions, make selections, filter content, or enter information. ABC uses Smart action, Smart reply, Suggestion, Emoji, and Sticker chip types.",
   "dependencies": ["avatar"],
   "propertyVisibility": {
     "leadingContent": {
@@ -17,13 +17,16 @@
     },
     "chipCount": {
       "when": { "type": ["Smart action carousel"] }
+    },
+    "emoji": {
+      "when": { "type": ["Emoji"] }
     }
   },
   "properties": {
     "type": {
       "type": "VARIANT",
       "default": "Smart action",
-      "options": ["Smart action", "Smart action carousel", "Suggestion", "Smart reply"]
+      "options": ["Smart action", "Smart action carousel", "Smart reply", "Suggestion", "Emoji", "Sticker"]
     },
     "selected": {
       "type": "BOOLEAN",
@@ -43,12 +46,17 @@
       "type": "VARIANT",
       "default": "3",
       "options": ["1", "2", "3", "4", "5", "6", "7", "8"]
+    },
+    "emoji": {
+      "type": "VARIANT",
+      "default": "❤️",
+      "options": ["❤️", "😂", "😍", "👍", "🔥", "😢", "🎉", "😮", "🙏", "😎", "🥳", "👏", "🤔", "💯", "✨"]
     }
   },
   "tokens": {
-    "cornerRadius": "20dp (Smart action / Smart reply) · 32dp (Suggestion)",
+    "cornerRadius": "20dp (Smart action / Smart reply / Emoji) · 32dp (Suggestion) · 8dp (Sticker)",
     "width": "auto (hug content)",
-    "mediaHeight": "40dp (Smart action / Smart reply) · 32dp (Suggestion)",
+    "mediaHeight": "40dp (Smart action / Smart reply / Emoji) · 32dp (Suggestion) · 48dp (Sticker)",
     "padding": {
       "top": 6,
       "right": 16,
@@ -67,7 +75,7 @@
       ["Surface (unselected bg)", "Surface", "#FFFFFF"],
       ["Surface Container (Suggestion unread)", "Surface Container", "#F0F4F9"],
       ["Primary Container (selected bg)", "Primary Container", "#D3E3FD"],
-      ["Outline Variant (unselected border)", "Outline Variant", "#C4C7C5"],
+      ["Outline Variant (border)", "Outline Variant", "#C4C7C5"],
       ["On Surface Variant (label unselected)", "On Surface Variant", "#444746"],
       ["On Primary Container (label selected)", "On Primary Container", "#0842A0"],
       ["Primary (icon color)", "Primary", "#0B57D0"]
@@ -76,20 +84,22 @@
       ["Surface (unselected bg)", "Surface", "#1E1F20"],
       ["Surface Container (Suggestion unread)", "Surface Container", "#2A2B2C"],
       ["Primary Container (selected bg)", "Primary Container", "#0842A0"],
-      ["Outline Variant (unselected border)", "Outline Variant", "#444746"],
+      ["Outline Variant (border)", "Outline Variant", "#444746"],
       ["On Surface Variant (label unselected)", "On Surface Variant", "#C4C7C5"],
       ["On Primary Container (label selected)", "On Primary Container", "#D3E3FD"],
       ["Primary (icon color)", "Primary", "#A8C7FA"]
     ]
   },
   "variants": [
-    { "name": "Smart action", "desc": "40dp height, 20dp radius. Optional leading icon. Left 12dp with icon, 16dp without. Click label on canvas to edit it inline." },
-    { "name": "Smart action carousel", "desc": "Horizontally scrollable row of Smart action chips. Use chipCount in the panel to add or remove chips (1–8)." },
-    { "name": "Suggestion", "desc": "32dp height, 32dp radius. No border. Avatar or icon leading. Left 8dp with leading / right 12dp. Left 16dp without leading / right 16dp." },
-    { "name": "Smart reply", "desc": "40dp height, 20dp radius. Label only, no leading content. 16dp padding both sides. Click label on canvas to edit it inline." }
+    { "name": "Smart action", "desc": "40dp, r=20. Optional icon/avatar leading. Left 12dp with leading, 16dp without. Click label on canvas to edit." },
+    { "name": "Smart action carousel", "desc": "Scrollable row of Smart action chips, 4px gap. chipCount (1–8) controls how many chips are shown. Leading content applies to all chips." },
+    { "name": "Smart reply", "desc": "40dp, r=20. Label only, 16dp padding both sides. Click label to edit." },
+    { "name": "Suggestion", "desc": "32dp, r=32. No border. Avatar or icon leading. Left 8dp/right 12dp with leading; 16dp both without." },
+    { "name": "Emoji", "desc": "40dp, r=20. Single emoji centred, no label. Select emoji from panel." },
+    { "name": "Sticker", "desc": "48dp, r=8. Sticker image (54x46dp) centred, no label." }
   ],
   "behavior": {
-    "interactive": "Tap toggles selected state (Smart action, Smart reply). Suggestion chips are non-toggle. Carousel chip count controlled via panel.",
+    "interactive": "Tap toggles selected state (Smart action, Smart reply). Suggestion, Emoji, Sticker are non-toggle actions. Carousel chip count controlled via panel.",
     "dynamic": "Smart action carousel scrolls horizontally. Suggestion row is ephemeral.",
     "readReceipt": "N/A"
   },
@@ -114,51 +124,33 @@
   ],
   "writing": [
     ["Label", "Short, action-oriented. Max 1 line. No punctuation."],
-    ["Smart reply", "Conversational, direct response phrasing (Yes, Sure, Sounds good)."]
+    ["Smart reply", "Conversational phrasing (Yes, Sure, Sounds good)."],
+    ["Emoji", "Single emoji, contextually relevant to the conversation."]
   ],
   "a11y": [
     ["Role", "button or checkbox (if toggleable)"],
-    ["Label", "aria-label matches visible chip label"],
+    ["Label", "aria-label matches visible chip label or emoji description"],
     ["Selected state", "aria-pressed or aria-selected for toggleable chips"],
     ["Keyboard", "Tab to focus, Space or Enter to activate"]
   ],
   "assets": [
     ["Leading icon", "18x18dp", "Inline SVG, primary color"],
-    ["Avatar", "20x20dp", "From _shared/avatar shared component"]
+    ["Avatar", "20x20dp", "From _shared/avatar shared component"],
+    ["Emoji", "22dp font-size", "Unicode emoji character"],
+    ["Sticker", "54x46dp", "Sticker image asset"]
   ],
   "conditionalLogic": {
-    "description": "leadingContent applies to Smart action and Suggestion. chipCount only applies to carousel.",
+    "description": "leadingContent applies to Smart action and Suggestion. chipCount only for carousel. emoji only for Emoji type.",
     "rules": [
-      {
-        "condition": "type = Smart action carousel",
-        "rendered": ["Scrollable chip row (chipCount chips)"],
-        "hidden": ["label"]
-      },
-      {
-        "condition": "type = Smart action, leadingContent = Icon",
-        "rendered": ["Leading icon (18dp)", "Label", "Border (unselected)"],
-        "hidden": []
-      },
-      {
-        "condition": "type = Smart action, leadingContent = None",
-        "rendered": ["Label", "Border (unselected)"],
-        "hidden": ["Leading icon"]
-      },
-      {
-        "condition": "type = Suggestion, leadingContent = Avatar",
-        "rendered": ["Avatar (20dp)", "Label"],
-        "hidden": ["Border", "Icon"]
-      },
-      {
-        "condition": "type = Suggestion, leadingContent = Icon",
-        "rendered": ["Icon (18dp)", "Label"],
-        "hidden": ["Border", "Avatar"]
-      },
-      {
-        "condition": "type = Smart reply",
-        "rendered": ["Label", "Border (unselected)"],
-        "hidden": ["Leading icon", "Avatar", "chipCount"]
-      }
+      { "condition": "type = Smart action carousel", "rendered": ["Scrollable chip row (chipCount chips)", "Leading content on each chip"], "hidden": ["label"] },
+      { "condition": "type = Smart action, leadingContent = Icon", "rendered": ["Leading icon", "Label", "Border"], "hidden": [] },
+      { "condition": "type = Smart action, leadingContent = Avatar", "rendered": ["Avatar", "Label", "Border"], "hidden": [] },
+      { "condition": "type = Smart action, leadingContent = None", "rendered": ["Label", "Border"], "hidden": ["Leading"] },
+      { "condition": "type = Suggestion, leadingContent = Avatar", "rendered": ["Avatar", "Label"], "hidden": ["Border"] },
+      { "condition": "type = Suggestion, leadingContent = Icon", "rendered": ["Icon", "Label"], "hidden": ["Border"] },
+      { "condition": "type = Smart reply", "rendered": ["Label", "Border"], "hidden": ["Leading"] },
+      { "condition": "type = Emoji", "rendered": ["Emoji character"], "hidden": ["Label", "Leading", "Border"] },
+      { "condition": "type = Sticker", "rendered": ["Sticker image"], "hidden": ["Label", "Leading", "Border"] }
     ]
   }
 }
