@@ -12,7 +12,7 @@
 
    Props:
      type    — string (one of the 5 types above)
-     size    — number in dp (default 56). Used by parent to request a specific render size.
+     size    — number in dp (default 56). Supported: 18, 20, 36, 56 and any value.
      color   — "Red"|"Green"|"Yellow"|"Purple"|"Pink"|"Cyan"  (Monogram only)
      initial — single character                                 (Monogram only)
      dark    — boolean, follows workspace toggle
@@ -26,7 +26,6 @@
    Must end with: const Component = Avatar;
 */
 
-/* Monogram palette — from Figma variable defs on BaseMonogram node 18425:64943 */
 var MONOGRAM = {
   Red:    { lb: "#FFCDD2", db: "#B71C1C", lt: "#60150f", dt: "#fff8f8" },
   Green:  { lb: "#C8E6C9", db: "#1B5E20", lt: "#00381f", dt: "#f2fcef" },
@@ -36,31 +35,22 @@ var MONOGRAM = {
   Cyan:   { lb: "#B2EBF2", db: "#006064", lt: "#003641", dt: "#f0fbff" },
 };
 
-/* Stable placeholder images — never expire */
 var IMG_PERSON   = "https://i.pravatar.cc/112?img=47";
 var IMG_BUSINESS = "https://logo.clearbit.com/google.com";
+var HOVER_CSS    = ".av-wrap:hover .av-cam { opacity: 1 !important; }";
 
-var HOVER_CSS = ".av-wrap:hover .av-cam { opacity: 1 !important; }";
-
-/* Camera overlay — signals the avatar is uploadable */
 function CamOverlay() {
   return React.createElement("div", {
     className: "av-cam",
-    style: {
-      position: "absolute", inset: 0, borderRadius: "inherit",
-      background: "rgba(0,0,0,0.35)",
-      display: "flex", alignItems: "center", justifyContent: "center",
-      opacity: 0, transition: "opacity 0.15s",
-    }
+    style: { position: "absolute", inset: 0, borderRadius: "inherit", background: "rgba(0,0,0,0.35)", display: "flex", alignItems: "center", justifyContent: "center", opacity: 0, transition: "opacity 0.15s" }
   },
-    React.createElement("svg", { width: 16, height: 16, viewBox: "0 0 24 24", fill: "none" },
+    React.createElement("svg", { width: 14, height: 14, viewBox: "0 0 24 24", fill: "none" },
       React.createElement("path", { d: "M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z", stroke: "#fff", strokeWidth: 1.8, strokeLinejoin: "round" }),
       React.createElement("circle", { cx: 12, cy: 13, r: 4, stroke: "#fff", strokeWidth: 1.8 })
     )
   );
 }
 
-/* Person silhouette — Unassigned Avatar */
 function PersonIcon(props) {
   var c = props.color || "#747775";
   var s = props.size  || 22;
@@ -70,7 +60,6 @@ function PersonIcon(props) {
   );
 }
 
-/* Building icon — Unassigned Business Avatar */
 function BuildingIcon(props) {
   var c = props.color || "#747775";
   var s = props.size  || 22;
@@ -86,7 +75,7 @@ function BuildingIcon(props) {
 
 function Avatar(props) {
   var type    = props.type    || "Single Avatar";
-  var sz      = props.size    || 56;         /* render size in dp */
+  var sz      = props.size    || 56;
   var color   = props.color   || "Red";
   var initial = (props.initial || "A").charAt(0).toUpperCase();
   var dark    = !!props.dark;
@@ -106,13 +95,18 @@ function Avatar(props) {
 
   function open() { if (inputRef.current) inputRef.current.click(); }
 
-  /* Base circle — size driven by sz prop */
   var base = {
     width: sz, height: sz, borderRadius: "50%",
     position: "relative", flexShrink: 0, overflow: "hidden",
     display: "flex", alignItems: "center", justifyContent: "center",
     cursor: "pointer",
   };
+
+  /* Icon and font scale with size */
+  var iconSz = Math.round(sz * 0.57);
+  var fontSz = Math.round(sz * 0.43);
+  /* At very small sizes (18dp, 20dp) skip the camera overlay to avoid clutter */
+  var showOverlay = sz >= 32;
 
   var input = React.createElement("input", {
     ref: inputRef, type: "file", accept: "image/*",
@@ -121,36 +115,28 @@ function Avatar(props) {
 
   var styleEl = React.createElement("style", null, HOVER_CSS);
 
-  /* Icon sizes scale with the avatar */
-  var iconSz = Math.round(sz * 0.57);
-  var fontSz = Math.round(sz * 0.43);
-
-  /* ── Single Avatar ── */
   if (type === "Single Avatar") {
     return React.createElement("div", { className: "av-wrap", style: base, onClick: open },
-      styleEl, input,
-      React.createElement("img", {
-        src: uploaded || IMG_PERSON, alt: "Avatar",
-        style: { width: "100%", height: "100%", objectFit: "cover", display: "block" }
-      }),
-      React.createElement(CamOverlay, null)
+      showOverlay ? styleEl : null,
+      input,
+      React.createElement("img", { src: uploaded || IMG_PERSON, alt: "Avatar", style: { width: "100%", height: "100%", objectFit: "cover", display: "block" } }),
+      showOverlay ? React.createElement(CamOverlay, null) : null
     );
   }
 
-  /* ── Unassigned Avatar ── */
   if (type === "Unassigned Avatar") {
     var bg = dark ? "#3c3c3c" : "#e8eaf0";
     var ic = dark ? "#9aa0a6" : "#747775";
     return React.createElement("div", { className: "av-wrap", style: Object.assign({}, base, { background: bg }), onClick: open },
-      styleEl, input,
+      showOverlay ? styleEl : null,
+      input,
       uploaded
         ? React.createElement("img", { src: uploaded, alt: "Avatar", style: { width: "100%", height: "100%", objectFit: "cover", display: "block" } })
         : React.createElement(PersonIcon, { color: ic, size: iconSz }),
-      React.createElement(CamOverlay, null)
+      showOverlay ? React.createElement(CamOverlay, null) : null
     );
   }
 
-  /* ── Monogram ── */
   if (type === "Monogram") {
     var pal = MONOGRAM[color] || MONOGRAM.Red;
     var bg  = dark ? pal.db : pal.lb;
@@ -159,45 +145,34 @@ function Avatar(props) {
       style: Object.assign({}, base, { background: bg, cursor: "default" })
     },
       React.createElement("span", {
-        style: {
-          fontFamily: "'Google Sans Flex','Google Sans',sans-serif",
-          fontWeight: 400, fontSize: fontSz, lineHeight: 1,
-          color: tc, userSelect: "none",
-        }
+        style: { fontFamily: "'Google Sans Flex','Google Sans',sans-serif", fontWeight: 400, fontSize: fontSz, lineHeight: 1, color: tc, userSelect: "none" }
       }, initial)
     );
   }
 
-  /* ── Unassigned Business Avatar ── */
   if (type === "Unassigned Business Avatar") {
     var bg   = dark ? "#2c2c2c" : "#e9eef6";
     var ic   = dark ? "#9aa0a6" : "#747775";
-    /* Figma uses r=14.93dp on the 56dp version → scale proportionally */
     var bizR = Math.round(sz * (14.93 / 56) * 10) / 10;
     var bizStyle = Object.assign({}, base, { background: bg, borderRadius: bizR + "px" });
     return React.createElement("div", { className: "av-wrap", style: bizStyle, onClick: open },
-      styleEl, input,
+      showOverlay ? styleEl : null,
+      input,
       uploaded
         ? React.createElement("img", { src: uploaded, alt: "Business Avatar", style: { width: "100%", height: "100%", objectFit: "cover", display: "block" } })
         : React.createElement(BuildingIcon, { color: ic, size: iconSz }),
-      React.createElement(CamOverlay, null)
+      showOverlay ? React.createElement(CamOverlay, null) : null
     );
   }
 
-  /* ── Business Avatar ── */
   if (type === "Business Avatar") {
-    var bizR    = Math.round(sz * (14.93 / 56) * 10) / 10;
-    var bizStyle = Object.assign({}, base, {
-      borderRadius: bizR + "px",
-      background: dark ? "#2c2c2c" : "#f0f4f9"
-    });
-    return React.createElement("div", { className: "av-wrap", style: bizStyle, onClick: open },
-      styleEl, input,
-      React.createElement("img", {
-        src: uploaded || IMG_BUSINESS, alt: "Business Avatar",
-        style: { width: "100%", height: "100%", objectFit: "cover", display: "block" }
-      }),
-      React.createElement(CamOverlay, null)
+    var bizR2    = Math.round(sz * (14.93 / 56) * 10) / 10;
+    var bizStyle2 = Object.assign({}, base, { borderRadius: bizR2 + "px", background: dark ? "#2c2c2c" : "#f0f4f9" });
+    return React.createElement("div", { className: "av-wrap", style: bizStyle2, onClick: open },
+      showOverlay ? styleEl : null,
+      input,
+      React.createElement("img", { src: uploaded || IMG_BUSINESS, alt: "Business Avatar", style: { width: "100%", height: "100%", objectFit: "cover", display: "block" } }),
+      showOverlay ? React.createElement(CamOverlay, null) : null
     );
   }
 
