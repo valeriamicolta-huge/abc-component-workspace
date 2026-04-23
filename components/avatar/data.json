@@ -1,0 +1,129 @@
+{
+  "id": "avatar",
+  "name": "Avatar",
+  "figmaNodeId": "10798:136557",
+  "figmaFileKey": "5L3DIB62Y0dFU3uVgLBeVK",
+  "description": "Avatars represent people or businesses. Used in contact cards, conversation headers, and chip leading content. Size=56dp. Click any uploadable avatar to replace the placeholder image.",
+  "dependencies": [],
+  "propertyVisibility": {
+    "color": {
+      "when": { "type": ["Monogram"] }
+    },
+    "initial": {
+      "when": { "type": ["Monogram"] }
+    }
+  },
+  "properties": {
+    "type": {
+      "type": "VARIANT",
+      "default": "Single Avatar",
+      "options": ["Single Avatar", "Unassigned Avatar", "Monogram", "Unassigned Business Avatar", "Business Avatar"]
+    },
+    "color": {
+      "type": "VARIANT",
+      "default": "Red",
+      "options": ["Red", "Green", "Yellow", "Purple", "Pink", "Cyan"]
+    },
+    "initial": {
+      "type": "VARIANT",
+      "default": "A",
+      "options": ["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"]
+    }
+  },
+  "tokens": {
+    "cornerRadius": "50% (circular) · 14.93dp radius (Business variants)",
+    "width": "56dp",
+    "mediaHeight": "56dp",
+    "padding": {
+      "top": 0,
+      "right": 0,
+      "bottom": 0,
+      "left": 0
+    },
+    "typography": {
+      "monogramInitial": {
+        "token": "Display Small",
+        "spec": "Google Sans Flex Regular, 24/24, tracking 0"
+      }
+    }
+  },
+  "colors": {
+    "light": [
+      ["Single Avatar bg", "Photo", "Image-based"],
+      ["Unassigned bg", "Surface Container High", "#E8EAF0"],
+      ["Unassigned icon", "Outline", "#747775"],
+      ["Business bg", "Surface Container", "#F0F4F9"],
+      ["Monogram Red bg", "Red Container", "#FFCDD2"],
+      ["Monogram Green bg", "Green Container", "#C8E6C9"],
+      ["Monogram Yellow bg", "Yellow Container", "#FFF9C4"],
+      ["Monogram Purple bg", "Purple Container", "#E1BEE7"],
+      ["Monogram Pink bg", "Pink Container", "#FCE4EC"],
+      ["Monogram Cyan bg", "Cyan Container", "#B2EBF2"]
+    ],
+    "dark": [
+      ["Single Avatar bg", "Photo", "Image-based"],
+      ["Unassigned bg", "Surface Container", "#3C3C3C"],
+      ["Unassigned icon", "Outline Variant", "#9AA0A6"],
+      ["Business bg", "Surface Container", "#2C2C2C"],
+      ["Monogram Red bg", "Red Dark", "#B71C1C"],
+      ["Monogram Green bg", "Green Dark", "#1B5E20"],
+      ["Monogram Yellow bg", "Yellow Dark", "#4D2600"],
+      ["Monogram Purple bg", "Purple Dark", "#4A148C"],
+      ["Monogram Pink bg", "Pink Dark", "#880E4F"],
+      ["Monogram Cyan bg", "Cyan Dark", "#006064"]
+    ]
+  },
+  "variants": [
+    { "name": "Single Avatar", "desc": "Circular photo avatar. Placeholder: pravatar.cc portrait. Click to upload a custom photo." },
+    { "name": "Unassigned Avatar", "desc": "Grey circle with person silhouette. Click to upload and replace with a photo." },
+    { "name": "Monogram", "desc": "Coloured circle with a single initial letter. Color and initial selectable from panel." },
+    { "name": "Unassigned Business Avatar", "desc": "Rounded-square (r=14.93dp) with building icon. Click to upload a logo." },
+    { "name": "Business Avatar", "desc": "Rounded-square brand logo. Placeholder: Google logo via Clearbit. Click to upload." }
+  ],
+  "behavior": {
+    "interactive": "Click any uploadable avatar to open a file picker and replace the placeholder.",
+    "dynamic": "Camera overlay appears on hover to signal uploadability.",
+    "readReceipt": "N/A"
+  },
+  "states": [
+    ["Default", "Placeholder image or monogram shown."],
+    ["Hover", "Camera overlay (semi-transparent dark scrim) appears."],
+    ["Uploaded", "User-provided image fills the avatar at objectFit:cover."]
+  ],
+  "darkMode": {
+    "tokens": [
+      ["Unassigned bg", "#E8EAF0", "#3C3C3C"],
+      ["Business bg", "#F0F4F9", "#2C2C2C"],
+      ["Monogram Red bg", "#FFCDD2", "#B71C1C"],
+      ["Monogram Green bg", "#C8E6C9", "#1B5E20"]
+    ],
+    "notes": "Monogram dark mode uses deep palette colors with light text."
+  },
+  "motion": [
+    ["Hover overlay", "150ms", "ease"]
+  ],
+  "writing": [
+    ["Monogram initial", "Single uppercase letter. Auto-capitalised."],
+    ["Alt text", "Descriptive alt for screen readers."]
+  ],
+  "a11y": [
+    ["Role", "img"],
+    ["Label", "aria-label: person's name or 'Avatar'"],
+    ["Upload", "Hidden file input triggered by click/tap"],
+    ["Contrast", "Monogram text meets WCAG AA against its background"]
+  ],
+  "assets": [
+    ["Person placeholder", "56x56dp", "https://i.pravatar.cc/112?img=47"],
+    ["Business placeholder", "56x56dp", "https://logo.clearbit.com/google.com"],
+    ["Person icon", "32x32dp", "Inline SVG"],
+    ["Building icon", "30x30dp", "Inline SVG"]
+  ],
+  "conditionalLogic": {
+    "description": "color and initial props only shown for Monogram type.",
+    "rules": [
+      { "condition": "type = Monogram", "rendered": ["Coloured circle", "Initial letter"], "hidden": ["Upload"] },
+      { "condition": "type = Single Avatar OR Business Avatar", "rendered": ["Photo placeholder", "Camera overlay on hover"], "hidden": ["Initial", "Color"] },
+      { "condition": "type = Unassigned Avatar OR Unassigned Business Avatar", "rendered": ["Grey bg", "Silhouette icon", "Camera overlay on hover"], "hidden": ["Initial", "Color"] }
+    ]
+  }
+}
